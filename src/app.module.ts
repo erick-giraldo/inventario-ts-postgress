@@ -1,8 +1,9 @@
 // src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductoModule } from './producto/producto.module';
-import { KardexModule } from './kardex/kardex.module';
+import { ProductModule } from './modules/product/product.module';
+import { KardexModule } from './modules/kardex/kardex.module';
+
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { KardexModule } from './kardex/kardex.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
-    ProductoModule,
+    ProductModule,
     KardexModule,
   ],
 })
