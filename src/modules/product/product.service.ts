@@ -1,20 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { ProductRepository } from './product.repository';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
+import { CategoryService } from '../category/category.service';
+import { BrandService } from '../brand/brand.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(ProductRepository)
     private readonly productRepository: ProductRepository,
+    private readonly categoryService: CategoryService,
+    private readonly brandService: BrandService,
   ) {}
 
   async save(data: Omit<Product, keyof AbstractEntity>) {
-    return this.productRepository.store(data);
+    try {
+    //   const category = await this.categoryService.findById()
+    //   if (!category) {
+    //     throw new ConflictException({
+    //       message: 'category not exists',
+    //     });
+    //   }
+    //   const brand = await this.brandService.findById()
+    //   if (brand) {
+    //     throw new ConflictException({
+    //       message: 'Brand not exists',
+    //     });
+    //   }
+      return await this.productRepository.store(data);
+    } catch (e) {
+      if (e.code === 11000) {
+        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
+        const duplicateKey = duplicateKeyMatch
+          ? duplicateKeyMatch[1].replace(/["]/g, '')
+          : 'unknown';
+        throw new ConflictException({
+          message: 'Product already exists',
+          duplicateKey,
+        });
+      }
+
+      throw e;
+    }
   }
 
   async getPaginate(query: PaginateQuery) {

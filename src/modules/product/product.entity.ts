@@ -5,6 +5,7 @@ import {
   ObjectId,
   CreateDateColumn,
   UpdateDateColumn,
+  Index, // Importamos Index
 } from 'typeorm';
 
 @Entity()
@@ -21,12 +22,14 @@ export class Product {
   @Column()
   readonly categoryId: string;
 
+  @Index({ unique: true }) // Añadimos el índice único aquí
   @Column()
   readonly code: string;
 
   @Column()
   readonly brandId: string;
 
+  @Index({ unique: true }) 
   @Column()
   readonly name: string;
 

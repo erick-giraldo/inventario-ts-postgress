@@ -1,4 +1,3 @@
-// src/producto/producto.controller.ts
 import {
   Controller,
   Get,
@@ -7,6 +6,8 @@ import {
   Delete,
   Body,
   Param,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Product } from './product.entity';
 import {
@@ -26,8 +27,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post(':xpub/:networkId')
-  // @HttpCode(HttpStatus.OK)
+  @Post('')
+  @HttpCode(HttpStatus.OK)
   // @UseGuards(SessionGuard)
   @ApiOkResponse({
     schema: {
