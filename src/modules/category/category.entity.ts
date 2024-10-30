@@ -9,7 +9,7 @@ import {
 
 @Entity()
 export class Product {
-  @ObjectIdColumn({ name: '_id' })
+  @ObjectIdColumn()
   readonly id?: ObjectId;
 
   @CreateDateColumn()
@@ -19,28 +19,10 @@ export class Product {
   readonly updatedAt?: Date;
 
   @Column()
-  readonly categoryId: string;
-
-  @Column()
-  readonly code: string;
-
-  @Column()
-  readonly brandId: string;
-
-  @Column()
   readonly name: string;
 
   @Column()
   readonly description: string;
-
-  @Column()
-  readonly stock: string;
-
-  @Column()
-  readonly price: string;
-
-  @Column()
-  readonly image: string;
 
   @Column()
   readonly status: boolean;

@@ -5,7 +5,8 @@ import { KardexModule } from './modules/kardex/kardex.module';
 import { MONGODB_CONNEXION_NAME } from './utils/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './common/config/environment-variables';
-import { Environment } from '@/common/enums/environment.enum';
+import { CategoryModule } from './modules/category/category.module';
+import { BrandModule } from './modules/brand/brand.module';
 
 @Module({
   imports: [
@@ -17,16 +18,18 @@ import { Environment } from '@/common/enums/environment.enum';
       useFactory: (
         configService: ConfigService<EnvironmentVariables, true>,
       ) => ({
-          type: 'mongodb',
-          url: configService.get('MONGODB_HOST', { infer: true }),
-          database: configService.get('MONGODB_NAME', { infer: true }),
-          autoLoadEntities: true,
-          synchronize: true,
-          authSource: configService.get('MONGODB_AUTH_SOURCE', { infer: true }),
-        }),
+        type: 'mongodb',
+        url: configService.get('MONGODB_HOST', { infer: true }),
+        database: configService.get('MONGODB_NAME', { infer: true }),
+        autoLoadEntities: true,
+        synchronize: true,
+        authSource: configService.get('MONGODB_AUTH_SOURCE', { infer: true }),
+      }),
     }),
     ProductModule,
     KardexModule,
+    CategoryModule,
+    BrandModule,
   ],
 })
 export class AppModule {}

@@ -1,10 +1,10 @@
-// product.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { ProductRepository } from './product.repository';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 
 @Injectable()
 export class ProductService {
@@ -13,19 +13,20 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
   ) {}
 
-  async create(data: Product) {
+  async save(data: Omit<Product, keyof AbstractEntity>) {
     return this.productRepository.store(data);
   }
 
   async getPaginate(query: PaginateQuery) {
     const limit = query.limit ?? 10;
     const page = query.page ?? 1;
-    const sort = query.sortBy?.reduce((acc, [key, value]) => {
-      return {
-        ...acc,
-        [key]: value,
-      };
-    }, {}) || {};
+    const sort =
+      query.sortBy?.reduce((acc, [key, value]) => {
+        return {
+          ...acc,
+          [key]: value,
+        };
+      }, {}) || {};
 
     const paginated = await this.productRepository.findPaginated(
       page,
