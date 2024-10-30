@@ -1,16 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ObjectId } from 'typeorm';
-import { Transform } from 'class-transformer';
 import { Product } from '../product.entity';
 
 export class ReturnProductDto implements Product {
-  @ApiProperty({
-    type: 'string',
-    format: 'uuid'
-  })
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id?: ObjectId;
+  @ApiProperty()
+  id?: ObjectId | undefined;
+
+  @ApiProperty()
+  createdAt?: Date | undefined;
+
+  @ApiProperty()
+  updatedAt?: Date | undefined;
 
   @ApiProperty({ format: 'uuid' })
   categoryId: string;

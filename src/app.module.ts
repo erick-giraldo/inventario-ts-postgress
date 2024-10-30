@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './modules/product/product.module';
 import { KardexModule } from './modules/kardex/kardex.module';
@@ -7,10 +7,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './common/config/environment-variables';
 import { CategoryModule } from './modules/category/category.module';
 import { BrandModule } from './modules/brand/brand.module';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { validateConfig } from './utils/validate-config';
+import { mapValidationError } from './utils/map-validation-error';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Asegúrate de inicializar el módulo de configuración de forma global
+    ConfigModule.forRoot({
+      validate: validateConfig,
+    }),
     TypeOrmModule.forRootAsync({
       name: MONGODB_CONNEXION_NAME,
       imports: [ConfigModule],
@@ -31,5 +37,24 @@ import { BrandModule } from './modules/brand/brand.module';
     CategoryModule,
     BrandModule,
   ],
+  providers:[
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        exceptionFactory: (it) => {
+          return new UnprocessableEntityException({
+            message: 'Validation failed',
+            data: it.map(mapValidationError),
+          });
+        },
+        transform: true,
+        whitelist: true,
+      }),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ]
 })
 export class AppModule {}
