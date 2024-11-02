@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Body,
   Param,
@@ -22,11 +21,11 @@ import { ProductService } from './product.service';
 import { productPaginateConfig } from './product-config';
 import { ReturnProductDto } from './dto/return-product.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { IdDto } from '@/common/dto/id.dto';
+// import { IdDto } from '@/common/dto/id.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
-import { Authentication } from '../authentication/decorators/authentication.decorator';
-import { SessionGuard } from '../authentication/guards/session.guard';
+// import { Authentication } from '../authentication/decorators/authentication.decorator';
+// import { SessionGuard } from '../authentication/guards/session.guard';
 
 @Controller('product')
 export class ProductController {
@@ -66,10 +65,10 @@ export class ProductController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(SessionGuard)
+  // @UseGuards(SessionGuard)
   @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   @ApiPaginationQuery(productPaginateConfig)
-  @Authentication()
+  // @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
     return await this.productService.getPaginate(query);
   }

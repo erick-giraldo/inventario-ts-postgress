@@ -9,14 +9,11 @@ import { CategoryModule } from './modules/category/category.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { validateConfig } from './utils/validate-config';
 import { mapValidationError } from './utils/map-validation-error';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      validate: validateConfig,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       name: MONGODB_CONNEXION_NAME,
       imports: [ConfigModule],
