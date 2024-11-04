@@ -78,7 +78,8 @@ export class ProductService {
   }
 
   async getById(id: string) {
-    return this.productRepository.findById(id);
+    console.log("🚀 ~ ProductService ~ getById ~ id:", id)
+    return this.productRepository.getById(id);
   }
 
   async update(id: string, data: Partial<Product>) {

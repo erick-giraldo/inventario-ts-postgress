@@ -1,11 +1,10 @@
-// product.repository.ts
 import { DataSource, MongoRepository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { Product } from './product.entity';
-
+import { ObjectId } from 'mongodb';
 @Injectable()
 export class ProductRepository extends MongoRepository<Product> {
   constructor(
@@ -34,7 +33,7 @@ export class ProductRepository extends MongoRepository<Product> {
     return await this.save(product);
   }
 
-  async findById(id: string) {
-    return await this.findOneBy({ id });
+  async getById(id: string) {
+     return await this.findOne({ where: { _id: new ObjectId(id) } });
   }
 }

@@ -1,3 +1,4 @@
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 import {
   Entity,
   ObjectIdColumn,
@@ -9,16 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Product {
-  @ObjectIdColumn({ name: '_id' })
-  readonly id?: ObjectId;
-
-  @CreateDateColumn()
-  readonly createdAt?: Date;
-
-  @UpdateDateColumn()
-  readonly updatedAt?: Date;
-
+export class Product extends AbstractEntity {
   @Column()
   readonly categoryId: string;
 

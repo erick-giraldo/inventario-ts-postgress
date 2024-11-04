@@ -7,12 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { CategoryModule } from '../category/category.module';
 import { BrandModule } from '../brand/brand.module';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product], MONGODB_CONNEXION_NAME),
     CategoryModule,
     BrandModule,
+    SessionModule
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],

@@ -18,6 +18,6 @@ export function setUpSwagger(app: INestApplication) {
 
   app.use('/redoc', redocExpressMiddleware({
     specUrl: 'doc-json',
-    title: 'Account Provider V2'
+    title: 'Sistema Inventario V1'
   }))
 }
