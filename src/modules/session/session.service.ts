@@ -13,7 +13,6 @@ export class SessionService {
   async createSession(user: Omit<User, 'toJSON'>): Promise<string> {
     const sessionId = uuid();
     const expiresAt = new Date(Date.now() + SessionService.SESSION_DURATION_MS);
-
     await this.sessionRepository.createSession(sessionId, user, expiresAt);
     return sessionId;
   }

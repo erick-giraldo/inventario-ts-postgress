@@ -2,9 +2,9 @@ import { Entity, Column, ObjectIdColumn, ObjectId, Index } from 'typeorm';
 import { User } from '../user/user.entity';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 
-@Entity('sessions')
+@Entity()
 export class Session extends AbstractEntity {
-  @Column()
+  @ObjectIdColumn()
   sessionId: string;
 
   @Column(type => User)

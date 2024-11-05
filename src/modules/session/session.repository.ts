@@ -12,12 +12,12 @@ export class SessionRepository extends MongoRepository<Session> {
     super(Session, dataSource.mongoManager);
   }
 
-  async createSession(sessionId: string, user: any, expiresAt: Date): Promise<Session> {
-    const session = this.create({ sessionId, user, expiresAt });
+  async createSession(sessionId: string, user: any, expiresAt: Date){
+    const session = await this.create({ sessionId, user, expiresAt });
     return await this.save(session);
   }
 
-  async findBySessionId(sessionId: string): Promise<Session | null> {
+  async findBySessionId(sessionId: string){
     return await this.findOne({ where: { sessionId } });
   }
 

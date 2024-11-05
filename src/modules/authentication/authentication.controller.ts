@@ -46,6 +46,7 @@ export class AuthenticationController {
     },
   })
   async signUpUser(@Body() user: CreateUserDto) {
+    console.log("🚀 ~ AuthenticationController ~ signUpUser ~ user:", user)
     return {
       masterKey: await this.authenticationService.signUpUser(user),
     };

@@ -43,6 +43,7 @@ import { SessionService } from '../session/session.service';
     ) {}
   
     async signUpUser(userDto: CreateUserDto) {
+      console.log("🚀 ~ AuthenticationService ~ signUpUser ~ userDto:", userDto)
       try {
             // const defaultProfile = await this.profileRepository.findOne({
             // where: {
@@ -75,11 +76,9 @@ import { SessionService } from '../session/session.service';
       }
     }
     async signIn(sigInDto: SignInDto) {
-        //console.log("🚀 ~ AuthenticationService ~ signIn ~ sigInDto:", sigInDto)
         const user = await this.userService.getByUsernameOrEmailAddress(
           sigInDto.emailAddress!,
         );
-        console.log("🚀 ~ AuthenticationService ~ signIn ~ user:", user)
         const isPasswordValid = await bcrypt.compare(
           sigInDto.password,
           user.password,
