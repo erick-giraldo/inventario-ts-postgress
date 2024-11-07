@@ -6,11 +6,13 @@ import { ReturnUserDto } from 'src/modules/user/dto/return-user.dto';
 
 class SignInResponseDataDto {
   @ApiProperty({ format: 'uuid' })
-  sessionId: string
+  sessionId: string;
 
   @ApiProperty({ type: ReturnUserDto })
   @Type(() => ReturnUserDto)
-  user: ReturnUserDto
+  user: ReturnUserDto;
 }
 
-export class SignInResponseDto extends withBaseResponse(SignInResponseDataDto) {}
+export class SignInResponseDto extends withBaseResponse(
+  SignInResponseDataDto,
+) {}

@@ -3,22 +3,34 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import redocExpressMiddleware from 'redoc-express';
 
 export function setUpSwagger(app: INestApplication) {
-  SwaggerModule.setup('doc', app, () => {
-    const config = new DocumentBuilder()
+  const config = new DocumentBuilder()
     .setTitle('Inventario TS V1')
-    .addApiKey({
-      type: 'apiKey',
-      name: 'x-session-id',
-      in: 'header'
-    }, 'session-id')
-    .build()
-    console.log("🚀 ~ SwaggerModule.setup ~ config:", config)
+    .setDescription('API Documentation')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT', // Este es el key que usarás en @ApiBearerAuth()
+    )
+    .build();
 
-    return SwaggerModule.createDocument(app, config)
-  })
+  const document = SwaggerModule.createDocument(app, config);
+  
+  // Setup Swagger UI
+  SwaggerModule.setup('doc', app, document);
 
-  app.use('/redoc', redocExpressMiddleware({
-    specUrl: 'doc-json',
-    title: 'Sistema Inventario V1'
-  }))
+  // Setup Redoc
+  app.use(
+    '/redoc',
+    redocExpressMiddleware({
+      specUrl: '/doc-json',
+      title: 'Sistema Inventario V1',
+    }),
+  );
 }

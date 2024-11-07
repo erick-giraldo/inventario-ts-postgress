@@ -15,7 +15,12 @@ export class UserRepository extends MongoRepository<User> {
   }
 
   async store(entity: Omit<User, keyof AbstractEntity>) {
-    return await this.save(entity);
+    const result = await this.save(entity);
+    return {
+      _id: result.id,
+      username: result.username,
+      emailAddress: result.emailAddress,
+    };
   }
 
   findAll(): Promise<readonly (User & Required<AbstractEntity>)[]> {

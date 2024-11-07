@@ -7,10 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User], MONGODB_CONNEXION_NAME)],
+  imports: [TypeOrmModule.forFeature([User], MONGODB_CONNEXION_NAME)],
   controllers: [UserController],
   providers: [UserService, UserRepository],
-  exports:[UserService]
+  exports: [UserService],
 })
 export class UserModule {}

@@ -20,13 +20,14 @@ import {
 import { ProductService } from './product.service';
 import { productPaginateConfig } from './product-config';
 import { ReturnProductDto } from './dto/return-product.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 // import { IdDto } from '@/common/dto/id.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import { SessionGuard } from '../authentication/guards/session.guard';
 
+@ApiBearerAuth('JWT')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -58,7 +59,7 @@ export class ProductController {
     },
   })
   @MapResponseToDto(ReturnProductDto)
-  @Authentication()
+  // @Authentication()
   async create(@Body() createProductDto: CreateProductDto) {
     return await this.productService.save(createProductDto);
   }
@@ -73,15 +74,13 @@ export class ProductController {
     return await this.productService.getPaginate(query);
   }
 
-  @Get(":id")
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
   // @UseGuards(SessionGuard)
   // // @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   // @ApiPaginationQuery(productPaginateConfig)
   // @Authentication()
-  async getById(
-    @Param('id') id: string
-  ) {
+  async getById(@Param('id') id: string) {
     return await this.productService.getById(id);
   }
 

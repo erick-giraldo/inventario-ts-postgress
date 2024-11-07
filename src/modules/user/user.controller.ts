@@ -25,7 +25,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   @Get()
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(SessionGuard)
   @ApiOkPaginatedResponse(ReturnUserDto, userPaginateConfig)
   @ApiPaginationQuery(userPaginateConfig)
   // @Authentication()

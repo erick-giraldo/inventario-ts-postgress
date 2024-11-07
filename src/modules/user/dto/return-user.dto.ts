@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserType } from '../user-type.enum';
 import { User } from '../user.entity';
-import { Exclude, Type } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 
 export class ReturnUserDto implements User {
   @ApiProperty()
