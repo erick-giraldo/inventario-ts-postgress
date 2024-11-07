@@ -18,12 +18,12 @@ export class CreateUserDto {
   @IsOptional()
   fullName: string
 
-  // @ApiProperty({ format: 'password' })
+  @ApiProperty({ format: 'password' })
   @IsString()
   @IsStrongPassword()
   password: string
 
-  // @ApiProperty({ format: 'email' })
+  @ApiProperty({ format: 'email' })
   @IsEmail()
   emailAddress: string
 

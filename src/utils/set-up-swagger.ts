@@ -5,13 +5,14 @@ import redocExpressMiddleware from 'redoc-express';
 export function setUpSwagger(app: INestApplication) {
   SwaggerModule.setup('doc', app, () => {
     const config = new DocumentBuilder()
-      .setTitle('Inventario TS V1')
-      .addApiKey({
-        type: 'apiKey',
-        name: 'x-session-id',
-        in: 'header'
-      }, 'session-id')
-      .build()
+    .setTitle('Inventario TS V1')
+    .addApiKey({
+      type: 'apiKey',
+      name: 'x-session-id',
+      in: 'header'
+    }, 'session-id')
+    .build()
+    console.log("🚀 ~ SwaggerModule.setup ~ config:", config)
 
     return SwaggerModule.createDocument(app, config)
   })

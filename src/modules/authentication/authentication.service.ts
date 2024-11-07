@@ -43,7 +43,6 @@ import { SessionService } from '../session/session.service';
     ) {}
   
     async signUpUser(userDto: CreateUserDto) {
-      console.log("🚀 ~ AuthenticationService ~ signUpUser ~ userDto:", userDto)
       try {
             // const defaultProfile = await this.profileRepository.findOne({
             // where: {
@@ -109,7 +108,7 @@ import { SessionService } from '../session/session.service';
         // }
     
         return {
-          sessionId: await this.sessionService.createSession(user),
+          sessionId: await this.sessionService.createSession(user.username),
           user,
         };
       }

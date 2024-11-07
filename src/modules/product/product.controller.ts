@@ -68,7 +68,7 @@ export class ProductController {
   @UseGuards(SessionGuard)
   @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   @ApiPaginationQuery(productPaginateConfig)
-  @Authentication()
+  // @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
     return await this.productService.getPaginate(query);
   }

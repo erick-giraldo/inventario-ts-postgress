@@ -10,10 +10,10 @@ export class SessionService {
 
   constructor(private readonly sessionRepository: SessionRepository) {}
 
-  async createSession(user: Omit<User, 'toJSON'>): Promise<string> {
+  async createSession(userName: string): Promise<string> {
     const sessionId = uuid();
     const expiresAt = new Date(Date.now() + SessionService.SESSION_DURATION_MS);
-    await this.sessionRepository.createSession(sessionId, user, expiresAt);
+    await this.sessionRepository.createSession(sessionId, userName, expiresAt);
     return sessionId;
   }
 
@@ -25,18 +25,18 @@ export class SessionService {
     await this.sessionRepository.deleteBySessionId(sessionId);
   }
 
-  async updateSession(sessionId: string, user: Partial<User>): Promise<void> {
-    const session = await this.getSession(sessionId);
-    if (!session) return; 
+  // async updateSession(sessionId: string, user: Partial<User>): Promise<void> {
+  //   const session = await this.getSession(sessionId);
+  //   if (!session) return; 
   
-    const updatedSession = {
-      user: {
-        ...session.user,
-        ...user,
-      },
-      expiresAt: new Date(Date.now() + SessionService.SESSION_DURATION_MS),
-    };
+  //   const updatedSession = {
+  //     user: {
+  //       ...session.user,
+  //       ...user,
+  //     },
+  //     expiresAt: new Date(Date.now() + SessionService.SESSION_DURATION_MS),
+  //   };
   
-    await this.sessionRepository.updateSession(sessionId, updatedSession);
-  }
+  //   await this.sessionRepository.updateSession(sessionId, updatedSession);
+  // }
 }
