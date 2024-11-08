@@ -1,33 +1,22 @@
-import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, ManyToMany, JoinTable, Index } from 'typeorm';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ProfileType } from '../../utils/enums';
 import { Role } from '../role/role.entity';
 
 @Entity()
 export class Profile extends AbstractEntity {
-  @Column() // No es necesario especificar el tipo, MongoDB es flexible con los tipos
+  @Column()
   readonly name: string;
 
-  @Column() // Lo mismo aquí
+  @Column()
   readonly description: string;
 
-  @Column() // Lo mismo aquí
+  @Column()
   readonly shortName: string;
 
-  @Column({ default: ProfileType.CLIENT }) // Default sigue siendo válido
+  @Column({ default: ProfileType.USER })
   readonly type?: ProfileType;
 
-  @ManyToMany(() => Role, (role) => role.profiles, { cascade: true }) // Puedes agregar cascade si deseas que se guarden los roles automáticamente
-  @JoinTable({
-    name: 'profiles_has_roles', // Aunque esta tabla no se creará en MongoDB, TypeORM la manejará en términos de referencia.
-    joinColumn: {
-      name: 'profile_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'role_id',
-      referencedColumnName: 'id',
-    },
-  })
-  readonly roles: Role[];
+  @Column()
+  readonly roles: string;
 }

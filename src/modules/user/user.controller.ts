@@ -42,13 +42,4 @@ export class UserController {
     return await this.userService.findById(id);
   }
 
-  @Get('user-name/:username')
-  @HttpCode(HttpStatus.OK)
-  // @UseGuards(SessionGuard)
-  // // @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
-  // @ApiPaginationQuery(productPaginateConfig)
-  // @Authentication()
-  async getByUserName(@Param('username') username: string) {
-    return await this.userService.getByUsernameOrEmailAddress(username);
-  }
 }

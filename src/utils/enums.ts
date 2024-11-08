@@ -1,4 +1,4 @@
 export enum ProfileType {
-  CLIENT = 'client',
+  USER = 'user',
   ADMIN = 'admin',
 }

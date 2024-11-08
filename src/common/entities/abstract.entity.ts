@@ -17,5 +17,5 @@ export abstract class AbstractEntity {
   readonly updatedAt?: Date;
 
   @DeleteDateColumn({ select: false })
-  readonly deletedAt?: Date | null
+  readonly deletedAt?: Date
 }

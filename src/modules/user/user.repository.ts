@@ -43,7 +43,6 @@ export class UserRepository extends MongoRepository<User> {
   }
 
   async findById(id: string) {
-    console.log('🚀 ~ UserRepository ~ findById ~ id:', id);
     return await this.findOne({ where: { _id: new ObjectId(id) } });
   }
 

@@ -18,22 +18,22 @@ export class ProfileRepository extends MongoRepository<Profile> {
   }
 
   async findAll(): Promise<Profile[]> {
-    return await this.find(); // Implementación simple para obtener todos los perfiles
+    return await this.find();
   }
 
   async updateById(id: string, entity: Partial<Omit<Profile, keyof AbstractEntity>>) {
-    await this.update({ id: new ObjectId(id) }, entity); // Convierte id a ObjectId
+    await this.update({ id: new ObjectId(id) }, entity); 
   }
 
   async deleteById(id: string): Promise<void> {
-    await this.delete(new ObjectId(id)); // Convierte id a ObjectId
+    await this.delete(new ObjectId(id));
   }
 
   async restoreById(id: string): Promise<void> {
-    // Implementar la lógica de restauración según tus requisitos
+
   }
 
   async findById(id: string): Promise<Profile | null> {
-    return await this.findOne({ where: { id: new ObjectId(id) } }); // Convierte id a ObjectId
+    return await this.findOne({ where: { id: new ObjectId(id) } });
   }
 }
