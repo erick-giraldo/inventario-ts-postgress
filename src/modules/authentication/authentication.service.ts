@@ -22,7 +22,6 @@ export class AuthenticationService {
 
   async signUpUser(userDto: CreateUserDto) {
     try {
-      console.log("ssssssss")
       const defaultProfile = await this.profileRepository.findOne({
         where: {
           type: ProfileType.USER,
@@ -30,7 +29,6 @@ export class AuthenticationService {
         },
         relations: ['roles'],
       });
-      console.log("🚀 ~ AuthenticationService ~ signUpUser ~ defaultProfile:", defaultProfile)
 
       if (!defaultProfile) {
         throw new NotFoundException({
@@ -70,9 +68,7 @@ export class AuthenticationService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Unauthorized', {
-        cause: 'Invalid password',
-      });
+      throw new UnauthorizedException('Invalid password');
     }
     const payload = { sub: user.id, username: user.username };
     return {

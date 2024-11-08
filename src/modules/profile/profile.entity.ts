@@ -2,6 +2,7 @@ import { Entity, Column, ManyToMany, JoinTable, Index } from 'typeorm';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ProfileType } from '../../utils/enums';
 import { Role } from '../role/role.entity';
+import { ObjectId } from 'mongodb';
 
 @Entity()
 export class Profile extends AbstractEntity {
@@ -17,6 +18,6 @@ export class Profile extends AbstractEntity {
   @Column({ default: ProfileType.USER })
   readonly type?: ProfileType;
 
-  @Column()
-  readonly roles: string;
+  @Column({ type: 'array', nullable: true })
+  readonly roles?: ObjectId[];
 }

@@ -4,12 +4,13 @@ import { ProfileService } from './profile.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 import { Profile } from './profile.entity';
-import { Role } from '../role/role.entity';
 import { ProfileRepository } from './profile.repository';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Profile, Role], MONGODB_CONNEXION_NAME)
+    TypeOrmModule.forFeature([Profile], MONGODB_CONNEXION_NAME),
+    RoleModule,
   ],
   controllers: [ProfileController],
   providers: [ProfileService, ProfileRepository],

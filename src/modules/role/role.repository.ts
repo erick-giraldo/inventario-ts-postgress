@@ -1,17 +1,16 @@
 import { DataSource, MongoRepository } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { IRepository } from '@/common/interfaces/repository.interface';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { Injectable } from '@nestjs/common';
 import { Role } from './role.entity';
 import { ObjectId } from 'mongodb'; // Importa ObjectId
+import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 
 @Injectable()
-export class RoleRepository
-  extends MongoRepository<Role>
-  implements IRepository<Role>
-{
-  constructor(@InjectDataSource() dataSource: DataSource) {
+export class RoleRepository extends MongoRepository<Role> {
+  constructor(
+    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
+  ) {
     super(Role, dataSource.mongoManager);
   }
 
@@ -60,14 +59,7 @@ export class RoleRepository
     });
   }
 
-  async findById(id: string) {
-    return this.findOne({
-      where: {
-        id: new ObjectId(id), // Convierte id a ObjectId
-      },
-      relations: {
-        profiles: true,
-      },
-    });
+  async findById(id: ObjectId) {
+    return await this.findOneBy({ _id: id });
   }
 }

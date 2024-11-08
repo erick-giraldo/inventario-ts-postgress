@@ -5,11 +5,13 @@ import { ObjectId } from 'mongodb';
 import { User } from './user.entity';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
+import { ProfileRepository } from '../profile/profile.repository';
 
 @Injectable()
 export class UserRepository extends MongoRepository<User> {
   constructor(
     @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
+    private readonly profileRepository: ProfileRepository,
   ) {
     super(User, dataSource.mongoManager);
   }
@@ -73,13 +75,28 @@ export class UserRepository extends MongoRepository<User> {
     sort: Record<keyof User, 'ASC' | 'DESC'>,
     filter: FindOptionsWhere<User>,
   ) {
-    const [items, count] = await this.findAndCount({
+    const [users, count] = await this.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
       order: sort,
       where: filter,
     });
 
-    return { items, count };
+    const usersWithProfiles = await Promise.all(
+      users.map(async (user) => {
+        const profileDetails = user.profiles
+          ? await Promise.all(
+              user.profiles.map((profileId) =>
+                this.profileRepository.findById(profileId), 
+              ),
+            )
+          : [];
+
+        return { ...user, profiles: profileDetails };
+      }),
+    );
+
+    return { items: usersWithProfiles, count };
+
   }
 }

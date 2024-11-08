@@ -78,7 +78,6 @@ export class ProductService {
   }
 
   async getById(id: string) {
-    console.log("🚀 ~ ProductService ~ getById ~ id:", id)
     return this.productRepository.getById(id);
   }
 

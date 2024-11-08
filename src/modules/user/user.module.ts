@@ -5,9 +5,13 @@ import { UserRepository } from './user.repository';
 import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User], MONGODB_CONNEXION_NAME)],
+  imports: [
+    TypeOrmModule.forFeature([User], MONGODB_CONNEXION_NAME),
+    ProfileModule,
+  ],
   controllers: [UserController],
   providers: [UserService, UserRepository],
   exports: [UserService],

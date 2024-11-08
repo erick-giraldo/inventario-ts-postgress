@@ -16,16 +16,14 @@ export function setUpSwagger(app: INestApplication) {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT', // Este es el key que usarás en @ApiBearerAuth()
+      'JWT',
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   
-  // Setup Swagger UI
   SwaggerModule.setup('doc', app, document);
 
-  // Setup Redoc
   app.use(
     '/redoc',
     redocExpressMiddleware({
