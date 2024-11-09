@@ -48,17 +48,6 @@ export class RoleRepository extends MongoRepository<Role> {
     });
   }
 
-  async findByName(name: string) {
-    return this.findOne({
-      where: {
-        name,
-      },
-      relations: {
-        profiles: true,
-      },
-    });
-  }
-
   async findById(id: ObjectId) {
     return await this.findOneBy({ _id: id });
   }

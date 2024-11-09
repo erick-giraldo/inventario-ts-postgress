@@ -1,12 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { EntityWithId } from '@/common/types/types';
+import { ObjectId } from 'mongodb';
+import { ProfileRepository } from '../profile/profile.repository';
+import { ProfileType } from 'src/utils/enums';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly profileRepository: ProfileRepository,
+  ) {}
 
   async getPaginate(query: PaginateQuery) {
     const limit = query.limit ?? 10;
@@ -60,5 +69,77 @@ export class UserService {
       });
     }
     return found;
+  }
+
+  async createUserByClientId(
+    createUserDto: CreateUserDto,
+    user: EntityWithId<User>,
+  ): Promise<boolean> {
+    try {
+      if (!user.profiles) {
+        throw new NotFoundException({
+          message: 'User has no profile assigned',
+        });
+      }
+
+      const foundProfiles = await Promise.all(
+        user.profiles.map((profile) => {
+          const profileId = new ObjectId(profile);
+          return this.profileRepository.findById(profileId);
+        })
+      );
+  
+
+      if (!foundProfiles.some((profile) => profile.shortName === 'owner')) {
+        throw new NotFoundException({
+          message: 'User has no owner profile assigned',
+        });
+      }
+
+      const defaultProfile = await this.profileRepository.findOne({
+        where: {
+          type: ProfileType.USER,
+          shortName: 'viewer',
+        },
+      });
+      const profileData = await this.profileRepository.findOne({
+        where: {
+          type: ProfileType.USER,
+          shortName: createUserDto.shortProfile,
+        },
+      });
+
+      const profiles = profileData ? profileData : defaultProfile;
+
+      if (!profiles) {
+        throw new NotFoundException({
+          message: 'Profile not found',
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash('', await bcrypt.genSalt());
+
+      const createUser = {
+        ...createUserDto,
+        password: hashedPassword,
+        profiles: [profiles.id!],
+        isActive: false,
+        isEmailAddressVerified: false
+      };
+      const savedUser = await this.userRepository.save(createUser);
+      return true;
+    } catch (e) {
+      if (e.code === 11000) {
+        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
+        const duplicateKey = duplicateKeyMatch
+          ? duplicateKeyMatch[1].replace(/["]/g, '')
+          : 'unknown';
+        throw new ConflictException({
+          message: 'User already exists',
+          duplicateKey,
+        });
+      }
+      throw e;
+    }
   }
 }

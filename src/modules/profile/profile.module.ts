@@ -14,6 +14,6 @@ import { RoleModule } from '../role/role.module';
   ],
   controllers: [ProfileController],
   providers: [ProfileService, ProfileRepository],
-  exports: [ProfileRepository],
+  exports: [ProfileRepository, ProfileService],
 })
 export class ProfileModule {}

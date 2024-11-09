@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/sign-in.dto';
 import { ProfileType } from 'src/utils/enums';
 import { ProfileRepository } from '../profile/profile.repository';
+import { EnvironmentVariables } from '@/common/config/environment-variables';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthenticationService {
@@ -18,16 +20,27 @@ export class AuthenticationService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly profileRepository: ProfileRepository,
+    private readonly configService: ConfigService<EnvironmentVariables, true>,
   ) {}
 
   async signUpUser(userDto: CreateUserDto) {
+    if (!this.configService.get('USER_REGISTER')) {
+      throw new NotFoundException(
+        {
+          message: 'Module is disabled',
+        },
+        {
+          cause: 'Module is disabled',
+        },
+      );
+    }
+
     try {
       const defaultProfile = await this.profileRepository.findOne({
         where: {
           type: ProfileType.USER,
           shortName: 'owner',
         },
-        relations: ['roles'],
       });
 
       if (!defaultProfile) {
@@ -41,6 +54,7 @@ export class AuthenticationService {
         profiles: [defaultProfile.id!],
         password: await bcrypt.hash(userDto.password, await bcrypt.genSalt()),
         isActive: false,
+        isEmailAddressVerified:false
       });
 
       return user;
@@ -70,7 +84,13 @@ export class AuthenticationService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    const payload = { sub: user.id, username: user.username };
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      isActive: user.isActive,
+      isEmailAddressVerified: user.isEmailAddressVerified,
+      profiles: user.profiles
+    };
     return {
       sessionId: await this.jwtService.signAsync(payload),
       user,

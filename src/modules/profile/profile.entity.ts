@@ -20,4 +20,5 @@ export class Profile extends AbstractEntity {
 
   @Column({ type: 'array', nullable: true })
   readonly roles?: ObjectId[];
+  
 }
