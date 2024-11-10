@@ -12,7 +12,7 @@ import { Transform } from 'class-transformer';
 export class CreateProductDto {
   @ApiProperty({ format: '67302da12656f969ecfdea42' })
   @IsString()
-  categoryId: string;
+  category: string;
 
   @ApiProperty()
   @IsString()
@@ -20,7 +20,7 @@ export class CreateProductDto {
 
   @ApiProperty({ format: '67302da12656f969ecfdea42' })
   @IsString()
-  brandId: string;
+  brand: string;
 
   @ApiProperty()
   @IsString()

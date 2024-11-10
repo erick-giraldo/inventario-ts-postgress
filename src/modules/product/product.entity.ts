@@ -4,14 +4,14 @@ import { Entity, Column, Index } from 'typeorm';
 @Entity()
 export class Product extends AbstractEntity {
   @Column()
-  readonly categoryId: string;
+  readonly category: string;
 
   @Index({ unique: true })
   @Column()
   readonly code: string;
 
   @Column()
-  readonly brandId: string;
+  readonly brand: string;
 
   @Index({ unique: true })
   @Column()

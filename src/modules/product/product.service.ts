@@ -32,31 +32,31 @@ export class ProductService {
     }
   }
 
-  private async getCategory(categoryId: string) {
-    const category = await this.categoryService.findById(categoryId);
-    if (!category) {
+  private async getCategory(category: string) {
+    const found = await this.categoryService.findById(category);
+    if (!found) {
       throw new ConflictException({ message: 'Category does not exist' });
     }
-    return category;
+    return found;
   }
 
-  private async getBrand(brandId: string) {
-    const category = await this.brandService.findById(brandId);
-    if (!category) {
+  private async getBrand(brand: string) {
+    const found = await this.brandService.findById(brand);
+    if (!found) {
       throw new ConflictException({ message: 'Brand does not exist' });
     }
-    return category;
+    return found;
   }
 
   async save(data: Omit<Product, keyof AbstractEntity>) {
     try {
-      validateObjectId(data.categoryId);
-      validateObjectId(data.brandId);
+      validateObjectId(data.category);
+      validateObjectId(data.brand);
 
-      const category = await this.getCategory(data.categoryId);
+      const category = await this.getCategory(data.category);
       this.checkCategoryStatus(category);
 
-      const brand = await this.getBrand(data.brandId);
+      const brand = await this.getBrand(data.brand);
       this.checkBrandStatus(brand);
 
       return await this.productRepository.store({

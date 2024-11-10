@@ -10,6 +10,6 @@ import { BrandRepository } from './brand.repository';
   imports: [TypeOrmModule.forFeature([Brand], MONGODB_CONNEXION_NAME)],
   controllers: [BrandController],
   providers: [BrandService, BrandRepository],
-  exports: [BrandService],
+  exports: [BrandService, BrandRepository],
 })
 export class BrandModule {}

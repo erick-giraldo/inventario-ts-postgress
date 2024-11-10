@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-
 import { ObjectId } from 'typeorm';
-import { Product } from '../product.entity';
+import { Category } from 'src/modules/category/category.entity';
+import { Brand } from 'src/modules/brand/brand.entity';
 
-export class ReturnProductDto implements Product {
+export class ReturnProductDto {
   @ApiProperty()
   id?: ObjectId | undefined;
 
@@ -14,13 +14,13 @@ export class ReturnProductDto implements Product {
   updatedAt?: Date | undefined;
 
   @ApiProperty({ format: 'uuid' })
-  categoryId: string;
+  category: Category;
 
   @ApiProperty()
   code: string;
 
   @ApiProperty({ format: 'uuid' })
-  brandId: string;
+  brand: Brand;
 
   @ApiProperty()
   name: string;

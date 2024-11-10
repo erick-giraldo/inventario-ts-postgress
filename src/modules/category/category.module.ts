@@ -10,6 +10,6 @@ import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
   imports: [TypeOrmModule.forFeature([Category], MONGODB_CONNEXION_NAME)],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],
-  exports: [CategoryService],
+  exports: [CategoryService, CategoryRepository],
 })
 export class CategoryModule {}
