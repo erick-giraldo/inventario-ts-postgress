@@ -1,8 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  IsUrl,
+  IsNumber,
+  Min,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 
-export class CreateProductDto{
-  @ApiProperty({ format: 'uuid' })
+export class CreateProductDto {
+  @ApiProperty({ format: '67302da12656f969ecfdea42' })
   @IsString()
   categoryId: string;
 
@@ -10,7 +18,7 @@ export class CreateProductDto{
   @IsString()
   code: string;
 
-  @ApiProperty({ format: 'uuid' })
+  @ApiProperty({ format: '67302da12656f969ecfdea42' })
   @IsString()
   brandId: string;
 
@@ -23,14 +31,20 @@ export class CreateProductDto{
   description: string;
 
   @ApiProperty()
-  stock: string;
+  @IsNumber({}, { message: 'Stock must be a valid number' })
+  @Min(0, { message: 'Stock must be a positive number' })
+  stock: number;
 
   @ApiProperty()
-  price: string;
+  @IsNumber({}, { message: 'Price must be a valid number' })
+  @Min(0, { message: 'Price must be a positive number' })
+  price: number;
 
   @ApiProperty()
+  @IsUrl({}, { message: 'Image must be a valid URL' })
   image: string;
 
   @ApiProperty()
+  @IsOptional()
   status?: boolean;
 }

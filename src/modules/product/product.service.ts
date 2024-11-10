@@ -9,6 +9,7 @@ import { CategoryService } from '../category/category.service';
 import { BrandService } from '../brand/brand.service';
 import { validateObjectId } from '@/common/utils/validate';
 import { Category } from '../category/category.entity';
+import { Brand } from '../brand/brand.entity';
 
 @Injectable()
 export class ProductService {
@@ -25,18 +26,39 @@ export class ProductService {
     }
   }
 
+  private checkBrandStatus(brand: Brand): void {
+    if (!brand.status) {
+      throw new ConflictException({ message: 'Brand is not active' });
+    }
+  }
+
+  private async getCategory(categoryId: string) {
+    const category = await this.categoryService.findById(categoryId);
+    if (!category) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    return category;
+  }
+
+  private async getBrand(brandId: string) {
+    const category = await this.brandService.findById(brandId);
+    if (!category) {
+      throw new ConflictException({ message: 'Brand does not exist' });
+    }
+    return category;
+  }
 
   async save(data: Omit<Product, keyof AbstractEntity>) {
     try {
       validateObjectId(data.categoryId);
-      const category = await this.getById(data.categoryId);
+      validateObjectId(data.brandId);
+
+      const category = await this.getCategory(data.categoryId);
       this.checkCategoryStatus(category);
-      //   const brand = await this.brandService.findById()
-      //   if (brand) {
-      //     throw new ConflictException({
-      //       message: 'Brand not exists',
-      //     });
-      //   }
+
+      const brand = await this.getBrand(data.brandId);
+      this.checkBrandStatus(brand);
+
       return await this.productRepository.store({
         ...data,
         status: false,
@@ -87,9 +109,9 @@ export class ProductService {
   }
 
   async getById(id: string) {
-    const category = await this.categoryService.findById(id);
+    const category = await this.productRepository.getById(id);
     if (!category) {
-      throw new ConflictException({ message: 'Category does not exist' });
+      throw new ConflictException({ message: 'Product does not exist' });
     }
     return category;
   }

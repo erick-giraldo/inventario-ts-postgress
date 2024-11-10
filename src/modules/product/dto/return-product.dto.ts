@@ -29,10 +29,10 @@ export class ReturnProductDto implements Product {
   description: string;
 
   @ApiProperty()
-  stock: string;
+  stock: number;
 
   @ApiProperty()
-  price: string;
+  price: number;
 
   @ApiProperty()
   image: string;

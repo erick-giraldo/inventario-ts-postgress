@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './modules/product/product.module';
 import { KardexModule } from './modules/kardex/kardex.module';
@@ -11,6 +11,9 @@ import { UserModule } from './modules/user/user.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { RoleModule } from './modules/role/role.module';
 import { AuthenticationModule } from './modules/authentication/authentication.module';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { mapValidationError } from './utils/map-validation-error';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -39,6 +42,24 @@ import { AuthenticationModule } from './modules/authentication/authentication.mo
     RoleModule,
     AuthenticationModule,
   ],
-  providers:[ ]
+  providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        exceptionFactory: (it) => {
+          return new UnprocessableEntityException({
+            message: 'Validation failed',
+            data: it.map(mapValidationError),
+          });
+        },
+        transform: true,
+        whitelist: true,
+      }),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}

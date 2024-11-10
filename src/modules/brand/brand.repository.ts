@@ -3,21 +3,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { Product } from './product.entity';
 import { ObjectId } from 'mongodb';
+import { Brand } from './brand.entity';
+
 @Injectable()
-export class ProductRepository extends MongoRepository<Product> {
+export class BrandRepository extends MongoRepository<Brand> {
   constructor(
     @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
   ) {
-    super(Product, dataSource.mongoManager);
+    super(Brand, dataSource.mongoManager);
   }
 
   async findPaginated(
     page: number,
     limit: number,
-    sort: Record<keyof Product, 'ASC' | 'DESC'>,
-    filter: FindOptionsWhere<Product>,
+    sort: Record<keyof Brand, 'ASC' | 'DESC'>,
+    filter: FindOptionsWhere<Brand>,
   ) {
     const [items, count] = await this.findAndCount({
       take: limit,
@@ -29,11 +30,11 @@ export class ProductRepository extends MongoRepository<Product> {
     return { items, count };
   }
 
-  async store(product: Product) {
+  async store(product: Brand) {
     return await this.save(product);
   }
 
   async getById(id: string) {
-    return await this.findOne({ where: { _id: new ObjectId(id) } });
- }
+     return await this.findOne({ where: { _id: new ObjectId(id) } });
+  }
 }

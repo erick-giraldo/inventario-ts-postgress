@@ -21,10 +21,10 @@ export class Product extends AbstractEntity {
   readonly description: string;
 
   @Column()
-  readonly stock: string;
+  readonly stock: number;
 
   @Column()
-  readonly price: string;
+  readonly price: number;
 
   @Column()
   readonly image: string;
