@@ -1,27 +1,19 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import {
-  Entity,
-  ObjectIdColumn,
-  Column,
-  ObjectId,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index, // Importamos Index
-} from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 
 @Entity()
 export class Product extends AbstractEntity {
   @Column()
   readonly categoryId: string;
 
-  @Index({ unique: true }) // Añadimos el índice único aquí
+  @Index({ unique: true })
   @Column()
   readonly code: string;
 
   @Column()
   readonly brandId: string;
 
-  @Index({ unique: true }) 
+  @Index({ unique: true })
   @Column()
   readonly name: string;
 
@@ -38,5 +30,5 @@ export class Product extends AbstractEntity {
   readonly image: string;
 
   @Column()
-  readonly status: boolean;
+  readonly status?: boolean;
 }

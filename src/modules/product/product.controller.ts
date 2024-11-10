@@ -64,7 +64,6 @@ export class ProductController {
   @Authentication()
   @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   @ApiPaginationQuery(productPaginateConfig)
-  @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
     return await this.productService.getPaginate(query);
   }
@@ -79,11 +78,13 @@ export class ProductController {
   }
 
   @Patch(':id')
+  @Authentication()
   update(@Param('id') id: string, @Body() data: Partial<Product>) {
     return this.productService.update(id, data);
   }
 
   @Delete(':id')
+  @Authentication()
   delete(@Param('id') id: string) {
     return this.productService.delete(id);
   }

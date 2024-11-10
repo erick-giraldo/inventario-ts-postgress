@@ -32,5 +32,5 @@ export class CreateProductDto{
   image: string;
 
   @ApiProperty()
-  status: boolean;
+  status?: boolean;
 }

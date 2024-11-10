@@ -7,6 +7,8 @@ import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { CategoryService } from '../category/category.service';
 import { BrandService } from '../brand/brand.service';
+import { validateObjectId } from '@/common/utils/validate';
+import { Category } from '../category/category.entity';
 
 @Injectable()
 export class ProductService {
@@ -17,21 +19,28 @@ export class ProductService {
     private readonly brandService: BrandService,
   ) {}
 
+  private checkCategoryStatus(category: Category): void {
+    if (!category.status) {
+      throw new ConflictException({ message: 'Category is not active' });
+    }
+  }
+
+
   async save(data: Omit<Product, keyof AbstractEntity>) {
     try {
-    //   const category = await this.categoryService.findById()
-    //   if (!category) {
-    //     throw new ConflictException({
-    //       message: 'category not exists',
-    //     });
-    //   }
-    //   const brand = await this.brandService.findById()
-    //   if (brand) {
-    //     throw new ConflictException({
-    //       message: 'Brand not exists',
-    //     });
-    //   }
-      return await this.productRepository.store(data);
+      validateObjectId(data.categoryId);
+      const category = await this.getById(data.categoryId);
+      this.checkCategoryStatus(category);
+      //   const brand = await this.brandService.findById()
+      //   if (brand) {
+      //     throw new ConflictException({
+      //       message: 'Brand not exists',
+      //     });
+      //   }
+      return await this.productRepository.store({
+        ...data,
+        status: false,
+      });
     } catch (e) {
       if (e.code === 11000) {
         const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
@@ -78,7 +87,11 @@ export class ProductService {
   }
 
   async getById(id: string) {
-    return this.productRepository.getById(id);
+    const category = await this.categoryService.findById(id);
+    if (!category) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    return category;
   }
 
   async update(id: string, data: Partial<Product>) {
