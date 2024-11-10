@@ -70,9 +70,8 @@ export class ProductController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
-  @ApiPaginationQuery(productPaginateConfig)
   @Authentication()
+  @ApiOkResponse({ type: ReturnProductDto })
   async getById(@Param('id') id: string) {
     return await this.productService.getById(id);
   }

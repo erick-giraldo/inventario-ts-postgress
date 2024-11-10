@@ -4,39 +4,75 @@ import { Category } from 'src/modules/category/category.entity';
 import { Brand } from 'src/modules/brand/brand.entity';
 
 export class ReturnProductDto {
-  @ApiProperty()
+  @ApiProperty({
+    example: '607d2f2300e8e38b0a1d24f9',
+    description: 'Unique identifier of the product',
+  })
   id?: ObjectId | undefined;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: '2024-11-10T03:50:57.712Z',
+    description: 'Timestamp when the product was created',
+  })
   createdAt?: Date | undefined;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: '2024-11-10T03:50:57.712Z',
+    description: 'Timestamp when the product was last updated',
+  })
   updatedAt?: Date | undefined;
 
-  @ApiProperty({ format: 'uuid' })
+  @ApiProperty({
+    example: { id: '673028e6fd640a8d959c5130', name: 'Electronics' },
+    description: 'Category of the product',
+  })
   category: Category;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: '12345ABC',
+    description: 'Unique product code',
+  })
   code: string;
 
-  @ApiProperty({ format: 'uuid' })
+  @ApiProperty({
+    example: { id: '673028e6fd640a8d959c5130', name: 'Apple' },
+    description: 'Brand of the product',
+  })
   brand: Brand;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'iPhone 13',
+    description: 'Name of the product',
+  })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Latest model of iPhone with 128GB storage',
+    description: 'Description of the product',
+  })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 100,
+    description: 'Available stock quantity',
+  })
   stock: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 999.99,
+    description: 'Price of the product in USD',
+  })
   price: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'https://example.com/iphone13.jpg',
+    description: 'URL to the product image',
+  })
   image: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: true,
+    description: 'Product availability status',
+  })
   status: boolean;
 }

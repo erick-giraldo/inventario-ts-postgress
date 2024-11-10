@@ -32,7 +32,7 @@ export class ProductRepository extends MongoRepository<Product> {
 
     const newItems = await Promise.all(
       items.map(async (item) => {
-        const profileDetails = {
+        const prooductsDetails = {
           category: item.category
             ? await this.categoryRepository.findOne({
                 where: { _id: new ObjectId(item.category) },
@@ -47,8 +47,8 @@ export class ProductRepository extends MongoRepository<Product> {
 
         return {
           ...item,
-          category: profileDetails.category,
-          brand: profileDetails.brand,
+          category: prooductsDetails.category,
+          brand: prooductsDetails.brand,
         };
       }),
     );
@@ -61,6 +61,23 @@ export class ProductRepository extends MongoRepository<Product> {
   }
 
   async getById(id: string) {
-    return await this.findOne({ where: { _id: new ObjectId(id) } });
+    const found = await this.findOne({ where: { _id: new ObjectId(id) } });
+    const newItems = {
+      category: found?.category
+        ? await this.categoryRepository.findOne({
+            where: { _id: new ObjectId(found?.category) },
+          })
+        : null,
+      brand: found?.brand
+        ? await this.brandRepository.findOne({
+            where: { _id: new ObjectId(found?.brand) },
+          })
+        : null,
+    };
+    return {
+      ...found,
+      category: newItems.category,
+      brand: newItems.brand,
+    };
   }
 }
