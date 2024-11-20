@@ -23,6 +23,7 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('product')
 export class ProductController {
@@ -78,8 +79,16 @@ export class ProductController {
 
   @Patch(':id')
   @Authentication()
-  update(@Param('id') id: string, @Body() data: Partial<Product>) {
+  @MapResponseToDto(ReturnProductDto)
+  update(@Param('id') id: string, @Body() data: UpdateProductDto) {
     return this.productService.update(id, data);
+  }
+
+  @Post('activate/:id')
+  @Authentication()
+  @MapResponseToDto(ReturnProductDto)
+  activate(@Param('id') id: string) {
+    return this.productService.activate(id);
   }
 
   @Delete(':id')

@@ -64,6 +64,24 @@ export class BrandService {
     }
   }
 
+
+  async update(id: string, data: Partial<Brand>) {
+    const found = await this.findById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Product does not exist' });
+    }
+    return this.brandRepository.updateProduct(id, data);
+  }
+
+  async activate(id: string) {
+    const found = await this.findById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Product does not exist' });
+    }
+    const newStatus = !found.status;
+    return this.brandRepository.activate(id, newStatus);
+  }
+
   async findById(id: string) {
     return await this.brandRepository.findOne({
       where: { _id: new ObjectId(id) },

@@ -34,6 +34,16 @@ export class BrandRepository extends MongoRepository<Brand> {
     return await this.save(product);
   }
 
+  async updateProduct(id: string, updateData: Partial<Brand>) {
+    return this.update(id, updateData);
+  }
+
+  async activate(id: string, newStatus: boolean) {
+    return this.update(id, {
+      status: newStatus,
+    });
+  }
+
   async getById(id: string) {
      return await this.findOne({ where: { _id: new ObjectId(id) } });
   }

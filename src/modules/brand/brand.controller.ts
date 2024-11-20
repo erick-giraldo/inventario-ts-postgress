@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import {
   ApiOkPaginatedResponse,
@@ -12,6 +12,7 @@ import { ReturnBrandDto } from './dto/return-brand.dto';
 import { brandPaginateConfig } from './brand-paginate-config';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Controller('brand')
 export class BrandController {
@@ -55,5 +56,19 @@ export class BrandController {
   @MapResponseToDto(ReturnBrandDto)
   async create(@Body() createBrandDto: CreateBrandDto) {
     return await this.brandService.save(createBrandDto);
+  }
+
+  @Patch(':id')
+  @Authentication()
+  @MapResponseToDto(ReturnBrandDto)
+  update(@Param('id') id: string, @Body() data: UpdateBrandDto) {
+    return this.brandService.update(id, data);
+  }
+
+  @Post('activate/:id')
+  @Authentication()
+  @MapResponseToDto(ReturnBrandDto)
+  activate(@Param('id') id: string) {
+    return this.brandService.activate(id);
   }
 }

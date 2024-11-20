@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import {
@@ -12,6 +12,7 @@ import { ReturnCategoryDto } from './dto/return-category.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/create-category.dto copy';
 
 @Controller('category')
 export class CategoryController {
@@ -55,5 +56,19 @@ export class CategoryController {
   @MapResponseToDto(ReturnCategoryDto)
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return await this.categoryService.save(createCategoryDto);
+  }
+
+  @Patch(':id')
+  @Authentication()
+  @MapResponseToDto(ReturnCategoryDto)
+  update(@Param('id') id: string, @Body() data: UpdateCategoryDto) {
+    return this.categoryService.update(id, data);
+  }
+
+  @Post('activate/:id')
+  @Authentication()
+  @MapResponseToDto(ReturnCategoryDto)
+  activate(@Param('id') id: string) {
+    return this.categoryService.activate(id);
   }
 }

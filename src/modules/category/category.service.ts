@@ -64,6 +64,23 @@ export class CategoryService {
     }
   }
 
+  async update(id: string, data: Partial<Category>) {
+    const found = await this.findById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    return this.categoryRepository.updateProduct(id, data);
+  }
+
+  async activate(id: string) {
+    const found = await this.findById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    const newStatus = !found.status;
+    return this.categoryRepository.activate(id, newStatus);
+  }
+
   async findById(id: string) {
     return await this.categoryRepository.findOne({
       where: { _id: new ObjectId(id) },

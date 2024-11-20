@@ -60,6 +60,16 @@ export class ProductRepository extends MongoRepository<Product> {
     return await this.save(product);
   }
 
+  async updateProduct(id: string, updateData: Partial<Product>) {
+    return this.update(id, updateData);
+  }
+
+  async activate(id: string, newStatus: boolean) {
+    return this.update(id, {
+      status: newStatus,
+    });
+  }
+
   async getById(id: string) {
     const found = await this.findOne({ where: { _id: new ObjectId(id) } });
     const newItems = {
