@@ -25,10 +25,6 @@ export class UserRepository extends MongoRepository<User> {
     };
   }
 
-  findAll(): Promise<readonly (User & Required<AbstractEntity>)[]> {
-    throw new Error('Method not implemented.');
-  }
-
   async updateById(
     id: string,
     entity: Partial<Omit<User, keyof AbstractEntity>>,
@@ -40,28 +36,45 @@ export class UserRepository extends MongoRepository<User> {
     throw new Error('Method not implemented.');
   }
 
-  restoreById(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
   async findById(id: string) {
-    return await this.findOne({ where: { _id: new ObjectId(id) } });
+    const user = await this.findOne({ where: { _id: new ObjectId(id) } });
+    if (!user) return;
+    const profiles = user.profiles
+      ? await Promise.all(
+          user.profiles.map((profileId) =>
+            this.profileRepository.findById(profileId),
+          ),
+        )
+      : [];
+
+    return { ...user, profiles };
   }
 
   async findByUsernameOrEmailAddress(usernameOrEmail: string) {
-    const search = usernameOrEmail?.trim();
-    if (!search) return null;
-
-    const isEmail = search.includes('@');
+    const found = usernameOrEmail?.trim();
+    if (!found) return;
+    const isEmail = found.includes('@');
     if (
       isEmail &&
-      !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(search)
+      !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(found)
     )
       return null;
 
-    return this.findOne({
-      where: isEmail ? { emailAddress: search } : { username: search },
+    const user = await this.findOne({
+      where: isEmail ? { emailAddress: found } : { username: found },
     });
+
+    if (!user) return null;
+
+    const profiles = user.profiles
+      ? await Promise.all(
+          user.profiles.map((profileId) =>
+            this.profileRepository.findById(profileId),
+          ),
+        )
+      : [];
+
+    return { ...user, profiles };
   }
 
   private isValidEmail(email: string): boolean {
@@ -87,7 +100,7 @@ export class UserRepository extends MongoRepository<User> {
         const profileDetails = user.profiles
           ? await Promise.all(
               user.profiles.map((profileId) =>
-                this.profileRepository.findById(profileId), 
+                this.profileRepository.findById(profileId),
               ),
             )
           : [];
@@ -97,6 +110,5 @@ export class UserRepository extends MongoRepository<User> {
     );
 
     return { items: usersWithProfiles, count };
-
   }
 }
