@@ -72,6 +72,7 @@ export class ProductRepository extends MongoRepository<Product> {
 
   async getById(id: string) {
     const found = await this.findOne({ where: { _id: new ObjectId(id) } });
+    if(!found) return
     const newItems = {
       category: found?.category
         ? await this.categoryRepository.findOne({
