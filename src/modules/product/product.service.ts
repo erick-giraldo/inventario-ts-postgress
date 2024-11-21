@@ -117,18 +117,23 @@ export class ProductService {
   }
 
   async update(id: string, data: Partial<Product>) {
-    await this.getById(id)
+    const found = await this.getById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Product does not exist' });
+    }
     return this.productRepository.updateProduct(id, data);
   }
 
   async activate(id: string) {
     const found = await this.getById(id)
+    if (!found) {
+      throw new ConflictException({ message: 'Product does not exist' });
+    }
     const newStatus = !found.status;
     return this.productRepository.activate(id, newStatus);
   }
 
   async delete(id: string) {
-     await this.getById(id)
     return this.productRepository.delete(id);
   }
 }
