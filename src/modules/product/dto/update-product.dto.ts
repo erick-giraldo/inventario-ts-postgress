@@ -6,23 +6,32 @@ import {
   IsNumber,
   Min,
   IsBoolean,
+  Matches,
 } from 'class-validator';
 
 export class UpdateProductDto {
-  @ApiProperty({ format: '67302da12656f969ecfdea42' })
-  @IsOptional()
-  @IsString()
-  category?: string;
+  @ApiProperty({
+    description: 'ID of the category (e.g., MongoDB ObjectId).',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @IsString({ message: 'Category must be a valid string.' })
+  @Matches(/^[0-9a-fA-F]{24}$/, {
+    message: 'Category must be a valid ObjectId.',
+  })
+  category: string;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
   code?: string;
 
-  @ApiProperty({ format: '67302da12656f969ecfdea42' })
-  @IsOptional()
-  @IsString()
-  brand?: string;
+  @ApiProperty({
+    description: 'ID of the brand (e.g., MongoDB ObjectId).',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @IsString({ message: 'Brand must be a valid string.' })
+  @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Brand must be a valid ObjectId.' })
+  brand: string;
 
   @ApiProperty()
   @IsOptional()

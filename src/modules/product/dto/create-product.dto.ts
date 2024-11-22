@@ -7,11 +7,18 @@ import {
   IsNumber,
   Min,
   Length,
+  Matches,
 } from 'class-validator';
 
 export class CreateProductDto {
-  @ApiProperty({ description: 'ID of the category (e.g., MongoDB ObjectId).' })
+  @ApiProperty({
+    description: 'ID of the category (e.g., MongoDB ObjectId).',
+    example: '507f1f77bcf86cd799439011',
+  })
   @IsString({ message: 'Category must be a valid string.' })
+  @Matches(/^[0-9a-fA-F]{24}$/, {
+    message: 'Category must be a valid ObjectId.',
+  })
   category: string;
 
   @ApiProperty({ description: 'Unique code of the product.' })
@@ -19,8 +26,12 @@ export class CreateProductDto {
   @Length(3, 20, { message: 'Code must be between 3 and 20 characters.' })
   code: string;
 
-  @ApiProperty({ description: 'ID of the brand (e.g., MongoDB ObjectId).' })
+  @ApiProperty({
+    description: 'ID of the brand (e.g., MongoDB ObjectId).',
+    example: '507f1f77bcf86cd799439011',
+  })
   @IsString({ message: 'Brand must be a valid string.' })
+  @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Brand must be a valid ObjectId.' })
   brand: string;
 
   @ApiProperty({ description: 'Name of the product.' })
@@ -30,7 +41,9 @@ export class CreateProductDto {
 
   @ApiProperty({ description: 'Detailed description of the product.' })
   @IsString({ message: 'Description must be a valid string.' })
-  @Length(5, 500, { message: 'Description must be between 5 and 500 characters.' })
+  @Length(5, 500, {
+    message: 'Description must be between 5 and 500 characters.',
+  })
   description: string;
 
   @ApiProperty({ description: 'Available stock of the product.' })

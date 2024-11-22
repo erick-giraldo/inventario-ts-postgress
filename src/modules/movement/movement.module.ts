@@ -18,6 +18,7 @@ import { CategoryModule } from '../category/category.module';
     CategoryModule
   ],
   controllers: [MovementController],
-  providers: [MovementService, MovementRepository]
+  providers: [MovementService, MovementRepository],
+  exports: [MovementRepository]
 })
 export class MovementModule {}
