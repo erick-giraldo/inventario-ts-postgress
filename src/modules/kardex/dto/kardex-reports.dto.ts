@@ -1,6 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsString, Matches } from 'class-validator';
-import { UnprocessableEntityException } from '@nestjs/common';
+import { IsDateString, IsString, Matches, Validate } from 'class-validator';
+import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+
+function IsStartDateBeforeEndDate(property: string, validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isStartDateBeforeEndDate',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [property],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          const relatedValue = (args.object as any)[relatedPropertyName];
+          if (!value || !relatedValue) return true; // Let other validations handle missing values
+          return new Date(value) <= new Date(relatedValue);
+        },
+        defaultMessage(args: ValidationArguments) {
+          return `${args.property} must be less than or equal to ${args.constraints[0]}`;
+        },
+      },
+    });
+  };
+}
 
 export class KardexReportsDto {
   @ApiProperty({
@@ -15,27 +38,12 @@ export class KardexReportsDto {
 
   @ApiProperty({ format: 'date-time' })
   @IsDateString()
+  @IsStartDateBeforeEndDate('endDate', {
+    message: 'startDate must be less than or equal to endDate.',
+  })
   startDate: string;
 
   @ApiProperty({ format: 'date-time' })
   @IsDateString()
   endDate: string;
-
-  checkDates() {
-    if (new Date(this.startDate) > new Date(this.endDate)) {
-      throw new UnprocessableEntityException({
-        message: 'Validation error',
-        data: [
-          {
-            property: 'from',
-            errors: ['startDate must be less than endDate'],
-          },
-          {
-            property: 'endDate',
-            errors: ['endDate must be greater than startDate'],
-          },
-        ],
-      });
-    }
-  }
 }

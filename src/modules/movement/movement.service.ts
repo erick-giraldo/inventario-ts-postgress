@@ -125,7 +125,7 @@ export class MovementService {
 
       const movement = this.movementRepository.create({
         ...movementData,
-        date: new Date(),
+        date: new Date(movementData.date),
         previousStock: currentStock,
         newStock: updatedStock,
         netPrice: _.round(unitPrice * (1 + igvRate), 2),
