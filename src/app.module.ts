@@ -16,6 +16,7 @@ import { mapValidationError } from './utils/map-validation-error';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { MovementModule } from './modules/movement/movement.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
+import { ClientModule } from './modules/client/client.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { SupplierModule } from './modules/supplier/supplier.module';
     AuthenticationModule,
     MovementModule,
     SupplierModule,
+    ClientModule,
   ],
   providers: [
     {

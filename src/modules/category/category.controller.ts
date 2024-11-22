@@ -12,7 +12,7 @@ import { ReturnCategoryDto } from './dto/return-category.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/create-category.dto copy';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('category')
 export class CategoryController {

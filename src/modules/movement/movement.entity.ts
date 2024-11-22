@@ -1,4 +1,5 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
+import { InvoiceType } from '@/common/enums/invoice-type.enum copy';
 import { Entity, Column } from 'typeorm';
 
 @Entity()
@@ -18,8 +19,11 @@ export class Movement extends AbstractEntity {
   @Column()
   readonly newStock: number;
 
-  @Column()
-  readonly invoiceType: string;
+  @Column({
+    type: 'enum',
+    enum: InvoiceType,
+  })
+  readonly documenttype: InvoiceType;
 
   @Column()
   readonly invoiceSeries: string;
