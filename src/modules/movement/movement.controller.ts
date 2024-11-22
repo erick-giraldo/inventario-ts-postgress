@@ -21,6 +21,9 @@ import { MovementService } from './movement.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { ReturnMovementDto } from './dto/return-movement.dto';
 import { movementPaginateConfig } from './movement-config';
+import { UserDecorator } from '../authentication/decorators/user.decorator';
+import { EntityWithId } from '@/common/types/types';
+import { User } from '../user/user.entity';
 
 @Controller('movement')
 export class MovementController {
@@ -70,7 +73,10 @@ export class MovementController {
   })
   @Authentication()
   @MapResponseToDto(ReturnMovementDto)
-  async create(@Body() createProductDto: CreateMovementDto) {
-    return await this.movementService.createMovement(createProductDto);
+  async create(
+    @Body() createProductDto: CreateMovementDto,
+    @UserDecorator() user: EntityWithId<User>,
+  ) {
+    return await this.movementService.createMovement(createProductDto, user);
   }
 }

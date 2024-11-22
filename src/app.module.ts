@@ -15,6 +15,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { mapValidationError } from './utils/map-validation-error';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { MovementModule } from './modules/movement/movement.module';
+import { SupplierModule } from './modules/supplier/supplier.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MovementModule } from './modules/movement/movement.module';
     RoleModule,
     AuthenticationModule,
     MovementModule,
+    SupplierModule,
   ],
   providers: [
     {

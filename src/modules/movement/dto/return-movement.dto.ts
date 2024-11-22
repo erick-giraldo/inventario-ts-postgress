@@ -85,9 +85,4 @@ export class ReturnMovementDto {
   })
   description: string;
 
-  @ApiProperty({
-    example: '607d2f2300e8e38b0a1d24f9',
-    description: 'Unique identifier of the user who registered the movement',
-  })
-  user: string;
 }

@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movement } from './movement.entity';
@@ -8,6 +12,8 @@ import { ProductService } from '../product/product.service';
 import { MovementType } from '@/common/enums/movement-type.enum';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm';
+import { EntityWithId } from '@/common/types/types';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class MovementService {
@@ -92,7 +98,11 @@ export class MovementService {
     }
   }
 
-  async createMovement(movementData: CreateMovementDto): Promise<Movement> {
+  async createMovement(
+    movementData: CreateMovementDto,
+    user: EntityWithId<User>,
+  ): Promise<Movement> {
+    console.log("🚀 ~ MovementService ~ user:", user)
     try {
       this.validateMovementData(movementData);
 
@@ -122,13 +132,13 @@ export class MovementService {
       await this.productService.update(product.id!.toString(), {
         stock: updatedStock,
       });
-
       const movement = this.movementRepository.create({
         ...movementData,
-        date: new Date(movementData.date),
+        date: movementData.date,
         previousStock: currentStock,
         newStock: updatedStock,
         netPrice: _.round(unitPrice * (1 + igvRate), 2),
+        user: user.id
       });
 
       const savedMovement = await this.movementRepository.save(movement);
@@ -144,8 +154,4 @@ export class MovementService {
       );
     }
   }
-
-
-
-
 }

@@ -11,6 +11,7 @@ import { Authentication } from '../authentication/decorators/authentication.deco
 import { KardexReportsDto } from './dto/kardex-reports.dto';
 import { Response } from 'express';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { KardexReportDto } from './dto/return-kardex-reports.dto';
 
 @Controller('kardex')
 export class KardexController {
@@ -19,13 +20,14 @@ export class KardexController {
   @Get(':productId')
   @HttpCode(HttpStatus.OK)
   @Authentication()
+  @ApiOkResponse({ type: KardexReportDto })
   async getKardex(@Query() kardexReportsDto: KardexReportsDto) {
     return await this.kardexService.getKardexReport(kardexReportsDto);
   }
 
-  @Get('export/now')
+  @Get('/export/now')
   @ApiOperation({
-    summary: 'Export a XLSX file with the trades',
+    summary: 'Export a XLSX file with the kardex',
   })
   @ApiOkResponse({
     content: {
@@ -39,18 +41,19 @@ export class KardexController {
   })
   @HttpCode(HttpStatus.OK)
   @Authentication()
-  async downloadKardexReport(
+  async reportTransactions(
     @Query() kardexReportsDto: KardexReportsDto,
     @Res() res: Response,
   ) {
-    console.log("ddddddd")
-    const { filename, buffer } =
-      await this.kardexService.exportKardexReport(kardexReportsDto);
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-    res.send(buffer);
+    const result =
+      await this.kardexService.exportKardexReportWithTemplate(kardexReportsDto);
+
+    return res
+      .set({
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${result.filename}"`,
+      })
+      .end(result.buffer);
   }
 }

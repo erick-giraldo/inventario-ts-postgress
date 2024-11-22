@@ -1,7 +1,14 @@
 import { InvoiceType } from '@/common/enums/invoice-type.enum copy';
 import { MovementType } from '@/common/enums/movement-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsEnum, IsDateString, Min, Matches } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsDateString,
+  Min,
+  Matches,
+} from 'class-validator';
 
 export class CreateMovementDto {
   @ApiProperty({
@@ -16,7 +23,9 @@ export class CreateMovementDto {
     example: '507f1f77bcf86cd799439011',
   })
   @IsString({ message: 'Product must be a valid string.' })
-  @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Product must be a valid ObjectId.' })
+  @Matches(/^[0-9a-fA-F]{24}$/, {
+    message: 'Product must be a valid ObjectId.',
+  })
   product: string;
 
   @ApiProperty({ description: 'Quantity of the product.' })
@@ -59,11 +68,4 @@ export class CreateMovementDto {
   @ApiProperty({ description: 'Description of the movement.' })
   @IsString({ message: 'Description must be a valid string.' })
   description: string;
-
-  @ApiProperty({
-    description:
-      'ID of the user who made the movement (e.g., MongoDB ObjectId).',
-  })
-  @IsString({ message: 'User must be a valid string.' })
-  user: string;
 }

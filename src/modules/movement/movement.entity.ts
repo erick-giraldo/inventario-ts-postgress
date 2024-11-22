@@ -28,7 +28,7 @@ export class Movement extends AbstractEntity {
   readonly invoiceNumber: string;
 
   @Column()
-  readonly date: Date;
+  readonly date: string;
 
   @Column()
   readonly supplierOrClient: string;

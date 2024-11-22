@@ -1,9 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsString, Matches, Validate } from 'class-validator';
-import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import { IsDateString, IsString, Matches } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from 'class-validator';
 
-function IsStartDateBeforeEndDate(property: string, validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+function IsStartDateBeforeEndDate(
+  property: string,
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isStartDateBeforeEndDate',
       target: object.constructor,
