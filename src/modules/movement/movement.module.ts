@@ -8,6 +8,8 @@ import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 import { ProductModule } from '../product/product.module';
 import { BrandModule } from '../brand/brand.module';
 import { CategoryModule } from '../category/category.module';
+import { ClientModule } from '../client/client.module';
+import { SupplierModule } from '../supplier/supplier.module';
 
 
 @Module({
@@ -15,7 +17,9 @@ import { CategoryModule } from '../category/category.module';
     TypeOrmModule.forFeature([Movement], MONGODB_CONNEXION_NAME),
     ProductModule,
     BrandModule,
-    CategoryModule
+    CategoryModule,
+    ClientModule,
+    SupplierModule
   ],
   controllers: [MovementController],
   providers: [MovementService, MovementRepository],

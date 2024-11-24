@@ -5,6 +5,7 @@ import {
   ValidationArguments,
   ValidationOptions,
 } from 'class-validator';
+import IsRealDate from '../../../modules/movement/validators/is-real-date';
 
 function IsStartDateBeforeEndDate(
   property: string,
@@ -45,6 +46,7 @@ export class KardexReportsDto {
 
   @ApiProperty({ format: 'date-time' })
   @IsDateString()
+  @IsRealDate({ message: 'startDate is not a valid calendar date.' })
   @IsStartDateBeforeEndDate('endDate', {
     message: 'startDate must be less than or equal to endDate.',
   })
@@ -52,5 +54,6 @@ export class KardexReportsDto {
 
   @ApiProperty({ format: 'date-time' })
   @IsDateString()
+  @IsRealDate({ message: 'endDate is not a valid calendar date.' })
   endDate: string;
 }

@@ -8,6 +8,10 @@ import { Movement } from './movement.entity';
 import { ProductRepository } from '../product/product.repository';
 import { CategoryRepository } from '../category/category.repository';
 import { BrandRepository } from '../brand/brand.repository';
+import { DateFilter } from '../kardex/interface/kardex-reports.interface';
+import { MovementType } from '@/common/enums/movement-type.enum';
+import { SupplierRepository } from '../supplier/supplier.repository';
+import { ClientRepository } from '../client/client.repository';
 @Injectable()
 export class MovementRepository extends MongoRepository<Movement> {
   constructor(
@@ -15,6 +19,8 @@ export class MovementRepository extends MongoRepository<Movement> {
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly brandRepository: BrandRepository,
+    private readonly supplierRepository: SupplierRepository,
+    private readonly clientRepository: ClientRepository,
   ) {
     super(Movement, dataSource.mongoManager);
   }
@@ -51,6 +57,16 @@ export class MovementRepository extends MongoRepository<Movement> {
               where: { _id: new ObjectId(productDetails?.brand) },
             })
           : null;
+        const supplierOrClient =
+          item.type === MovementType.IN
+            ? await this.supplierRepository.findOne({
+                where: { _id: new ObjectId(item.supplierOrClient) },
+              })
+            : item.type === MovementType.OUT
+              ? await this.clientRepository.findOne({
+                  where: { _id: new ObjectId(item.supplierOrClient) },
+                })
+              : null;  
         return {
           ...item,
           product: {
@@ -58,11 +74,43 @@ export class MovementRepository extends MongoRepository<Movement> {
             category: categoryDetails,
             brand: brandDetails,
           },
+          supplierOrClient
         };
       }),
     );
 
     return { items: newItems, count };
+  }
+
+  async findAll(dateFilter: DateFilter){
+    const items = await this.find({
+      where: dateFilter,
+      order: { date: 'ASC' },
+    });
+    
+    // Si no hay items, retornar array vacío en lugar de undefined
+    if (!items) return [];
+  
+    // Retornar directamente el array transformado
+    return Promise.all(
+      items.map(async (item) => {
+        const supplierOrClient =
+          item.type === MovementType.IN
+            ? await this.supplierRepository.findOne({
+                where: { _id: new ObjectId(item.supplierOrClient) },
+              })
+            : item.type === MovementType.OUT
+              ? await this.clientRepository.findOne({
+                  where: { _id: new ObjectId(item.supplierOrClient) },
+                })
+              : null;
+  
+        return {
+          ...item,
+          supplierOrClient,
+        };
+      }),
+    );
   }
 
   async store(movement: Movement) {
