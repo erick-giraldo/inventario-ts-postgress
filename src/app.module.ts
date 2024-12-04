@@ -32,6 +32,7 @@ import { ClientModule } from './modules/client/client.module';
         url: configService.get('MONGODB_HOST', { infer: true }),
         database: configService.get('MONGODB_NAME', { infer: true }),
         autoLoadEntities: true,
+        useUnifiedTopology: true,
         synchronize: true,
         authSource: configService.get('MONGODB_AUTH_SOURCE', { infer: true }),
       }),
