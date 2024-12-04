@@ -9,6 +9,7 @@ import { Client } from './client.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Client], MONGODB_CONNEXION_NAME)],
   controllers: [ClientController],
-  providers: [ClientService, ClientRepository]
+  providers: [ClientService, ClientRepository],
+  exports: [ClientRepository]
 })
 export class ClientModule {}

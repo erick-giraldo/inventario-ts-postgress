@@ -1,6 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { Brand } from '../../../modules/brand/brand.entity';
 import { Category } from '../../../modules/category/category.entity';
+import { Supplier } from '../../../modules/supplier/supplier.entity';
+import { Client } from '../../../modules/client/client.entity';
 
 export interface IProduct {
   category: Category | null;
@@ -21,8 +23,8 @@ export interface KardexEntry {
   date: string;
   detail: string;
   product: string;
-  inputs: { provider: string; quantity: number } | null;
-  outputs: { client: string; quantity: number } | null;
+  inputs: { provider: Supplier; quantity: number } | null;
+  outputs: { client: Client; quantity: number } | null;
   balance: number;
 }
 
@@ -47,5 +49,12 @@ export interface IReportData {
     totalInputs: number;
     totalOutputs: number;
     product: string;
+  };
+}
+
+export interface DateFilter {
+  date: {
+      $gte: string;
+      $lte: string;
   };
 }

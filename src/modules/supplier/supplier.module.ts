@@ -9,6 +9,7 @@ import { SupplierRepository } from './supplier.repository';
 @Module({
   imports: [TypeOrmModule.forFeature([Supplier], MONGODB_CONNEXION_NAME)],
   controllers: [SupplierController],
-  providers: [SupplierService, SupplierRepository]
+  providers: [SupplierService, SupplierRepository],
+  exports: [SupplierRepository]
 })
 export class SupplierModule {}

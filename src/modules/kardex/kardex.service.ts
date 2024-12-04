@@ -4,11 +4,17 @@ import { MovementRepository } from '../movement/movement.repository';
 import { ProductRepository } from '../product/product.repository';
 import { DateTime } from 'luxon';
 import { KardexReportsDto } from './dto/kardex-reports.dto';
-import { Movement } from '../movement/movement.entity';
 import XlsxTemplate from 'xlsx-template';
 import * as path from 'path';
 import * as fs from 'fs';
-import { IProduct, KardexEntry } from './interface/kardex-reports.interface';
+import {
+  DateFilter,
+  IProduct,
+  KardexEntry,
+} from './interface/kardex-reports.interface';
+import { IMovement } from '../movement/interface/movement.interface';
+import { Supplier } from '../supplier/supplier.entity';
+import { Client } from '../client/client.entity';
 @Injectable()
 export class KardexService {
   constructor(
@@ -59,17 +65,15 @@ export class KardexService {
       }
       const startString = start.toFormat('yyyy-MM-dd');
       const endString = end.toFormat('yyyy-MM-dd');
-      const dateFilter = {
+      const dateFilter: DateFilter = {
         date: {
           $gte: startString,
           $lte: endString,
         },
       };
 
-      const movements = await this.movementRepository.find({
-        where: dateFilter,
-        order: { date: 'ASC' },
-      });
+      const movements: IMovement[] =
+        await this.movementRepository.findAll(dateFilter);
 
       // Procesar los movimientos y calcular el kardex
       const initialBalance = await this.calculateInitialBalance(
@@ -122,50 +126,51 @@ export class KardexService {
   }
 
   private processMovements(
-    movements: Movement[],
+    movements: IMovement[],
     product: IProduct,
     initialBalance: number,
   ): { kardex: KardexEntry[]; finalBalance: number } {
     const { kardex, finalBalance } = movements.reduce(
       (acc, movement) => {
-        // Calcular el nuevo balance de forma inmutable
         const newBalance =
           movement.type === 'IN'
             ? acc.finalBalance + movement.quantity
             : acc.finalBalance - movement.quantity;
-  
+
         acc.kardex.push({
           date: movement.date,
           detail: movement.description || '',
           product: `${product.code} - ${product.name}`,
           inputs:
-            movement.type === 'IN'
+            movement.type === 'IN' &&
+            movement.supplierOrClient &&
+            'companyName' in movement.supplierOrClient
               ? {
-                  provider: movement.supplierOrClient || 'N/A',
+                  provider: movement.supplierOrClient as Supplier,
                   quantity: movement.quantity,
                 }
               : null,
           outputs:
-            movement.type === 'OUT'
+            movement.type === 'OUT' &&
+            movement.supplierOrClient &&
+            !('companyName' in movement.supplierOrClient)
               ? {
-                  client: movement.supplierOrClient || 'N/A',
+                  client: movement.supplierOrClient as Client,
                   quantity: movement.quantity,
                 }
               : null,
           balance: newBalance,
         });
-  
-        // Devolver el acumulador con el nuevo balance
+
         return { kardex: acc.kardex, finalBalance: newBalance };
       },
-      { kardex: [] as KardexEntry[], finalBalance: initialBalance } // Estado inicial
+      { kardex: [] as KardexEntry[], finalBalance: initialBalance },
     );
-  
+
     return { kardex, finalBalance };
   }
-  
 
-  private calculateTotals(movements: Movement[]) {
+  private calculateTotals(movements: IMovement[]) {
     return movements.reduce(
       (totals, movement) => {
         if (movement.type === 'IN') {
@@ -182,7 +187,6 @@ export class KardexService {
   async exportKardexReportWithTemplate(kardexReportsDto: KardexReportsDto) {
     try {
       const reportData = await this.getKardexReport(kardexReportsDto);
-
       const filename = path.join(
         __dirname,
         '..',
@@ -199,13 +203,15 @@ export class KardexService {
         date: movement.date,
         detail: movement.detail,
         product: movement.product,
-        supplier: movement.inputs?.provider || '',
+        supplier: movement.inputs?.provider?.companyName || '',
         inputs: movement.inputs ? Math.round(movement.inputs.quantity) : '',
-        client: movement.outputs?.client || '',
+        client: movement.outputs?.client
+          ? `${movement.outputs.client.names || ''} ${movement.outputs.client.surnames || ''}`.trim()
+          : '',
         outputs: movement.outputs ? Math.round(movement.outputs.quantity) : '',
         balance: Math.round(movement.balance),
       }));
-
+      
       const data = {
         currentDate: DateTime.now()
           .setZone('Etc/GMT+5')
