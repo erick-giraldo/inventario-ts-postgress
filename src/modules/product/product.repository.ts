@@ -24,7 +24,6 @@ export class ProductRepository extends MongoRepository<Product> {
   private processFilters(
     filter: Record<string, unknown>,
   ): FindOptionsWhere<Product> {
-    console.log("🚀 ~ ProductRepository ~ filter:", filter)
     if (!filter) return {};
 
     const processedFilters: Record<string, unknown> = {};
@@ -53,8 +52,6 @@ export class ProductRepository extends MongoRepository<Product> {
     filter: FindOptionsWhere<Product>,
   ) {
     const filters = this.processFilters(filter);
-    console.log("🚀 ~ ProductRepository ~ filters:", filters)
-
     const [items, count] = await this.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
