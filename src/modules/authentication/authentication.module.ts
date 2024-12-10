@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ProfileModule } from '../profile/profile.module';
+import { AuthenticationTwoFaController } from './authentication-two-fa.controller';
+import { ConfirmationCodeModule } from '../confirmation-code/confirmation-code.module';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { ProfileModule } from '../profile/profile.module';
     UserModule,
     PassportModule,
     ProfileModule,
+    ConfirmationCodeModule
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthenticationController, AuthenticationTwoFaController],
   providers: [AuthenticationService, JwtStrategy],
   exports: [AuthenticationService],
 })

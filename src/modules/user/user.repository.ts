@@ -29,7 +29,7 @@ export class UserRepository extends MongoRepository<User> {
     id: string,
     entity: Partial<Omit<User, keyof AbstractEntity>>,
   ) {
-    await this.update({ id: new ObjectId(id) }, entity); // Convierte id a ObjectId
+    return await this.update({ id: new ObjectId(id) }, entity);
   }
 
   deleteById(id: string): Promise<void> {
@@ -75,11 +75,6 @@ export class UserRepository extends MongoRepository<User> {
       : [];
 
     return { ...user, profiles };
-  }
-
-  private isValidEmail(email: string): boolean {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return emailRegex.test(email);
   }
 
   async findPaginated(

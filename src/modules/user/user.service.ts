@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { PaginateQuery } from 'nestjs-paginate';
@@ -9,6 +13,8 @@ import { ObjectId } from 'mongodb';
 import { ProfileRepository } from '../profile/profile.repository';
 import { ProfileType } from 'src/utils/enums';
 import * as bcrypt from 'bcrypt';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
+import { UserType } from './user-type.enum';
 
 @Injectable()
 export class UserService {
@@ -49,7 +55,7 @@ export class UserService {
   async create(user: Omit<User, 'toJSON'>) {
     return await this.userRepository.store(user);
   }
-
+  
   async findById(id: string) {
     const found = await this.userRepository.findById(id);
     if (!found) {
@@ -71,7 +77,7 @@ export class UserService {
     return found;
   }
 
-  async createUserByClientId(
+  async createUser(
     createUserDto: CreateUserDto,
     user: EntityWithId<User>,
   ): Promise<boolean> {
@@ -86,9 +92,8 @@ export class UserService {
         user.profiles.map((profile) => {
           const profileId = new ObjectId(profile);
           return this.profileRepository.findById(profileId);
-        })
+        }),
       );
-  
 
       if (!foundProfiles.some((profile) => profile.shortName === 'owner')) {
         throw new NotFoundException({
@@ -124,9 +129,11 @@ export class UserService {
         password: hashedPassword,
         profiles: [profiles.id!],
         isActive: false,
-        isEmailAddressVerified: false
+        isEmailAddressVerified: false,
+        isTwoFaEnabled: false,
+        userType: UserType.USER
       };
-      const savedUser = await this.userRepository.save(createUser);
+      await this.userRepository.save(createUser);
       return true;
     } catch (e) {
       if (e.code === 11000) {
@@ -141,5 +148,12 @@ export class UserService {
       }
       throw e;
     }
+  }
+
+  async updateById(
+    id: string,
+    user: Partial<Omit<User, keyof AbstractEntity | 'toJSON'>>,
+  ) {
+    return await this.userRepository.updateById(id, user);
   }
 }
