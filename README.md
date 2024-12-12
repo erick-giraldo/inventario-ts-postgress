@@ -70,6 +70,9 @@ $ mau deploy
 ```
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Enable twoFa
+
+Para activar el twofa puedes acceder a esta pagina [link](https://stefansundin.github.io/2fa-qr/)
 
 ## Resources
 
