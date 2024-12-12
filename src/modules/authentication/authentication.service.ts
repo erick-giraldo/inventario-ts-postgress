@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -15,16 +16,23 @@ import { EnvironmentVariables } from '@/common/config/environment-variables';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../user/user.entity';
 import speakeasy from 'speakeasy';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as handlebars from 'handlebars';
 import { EntityWithId } from '@/common/types/types';
 import { EnableTwoFaDto } from './dto/enable-two-fa.dto';
 import { IUser } from '../user/user.interface';
 import { UserType } from '../user/user-type.enum';
 import { ConfirmationCodeType } from '../confirmation-code/confirmation-code-type.enum';
 import { ConfirmationCodeService } from '../confirmation-code/confirmation-code.service';
+import { EmailService } from '../email/email.service';
+import { ConfirmDto, SetActivateDto } from './dto/confirm.dto';
+import { ResendCodeDto } from './dto/resend-code.dto';
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly userService: UserService,
+    private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly profileRepository: ProfileRepository,
     private readonly confirmationCodeService: ConfirmationCodeService,
@@ -64,13 +72,43 @@ export class AuthenticationService {
         isActive: false,
         isEmailAddressVerified: false,
         isTwoFaEnabled: false,
+        twoFaSeed: '',
         userType: UserType.USER,
       });
 
-      await this.confirmationCodeService.generate(
+      const confirmationCode = await this.confirmationCodeService.generate(
         String(user._id),
         ConfirmationCodeType.EMAIL_CONFIRMATION,
       );
+
+      const emailTitle = 'Activa tu cuenta';
+      const filePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'assets',
+        'email-templates',
+      );
+      const templateSource = fs.readFileSync(
+        `${filePath}/new-user.html`,
+        'utf-8',
+      );
+      const template = handlebars.compile(templateSource);
+      const htmlContent = template({
+        title: emailTitle,
+        headerTitle: emailTitle,
+        mainContent: `Estás a un paso de activar tu cuenta. Para confirmar tu correo electrónico y configurar tu contraseña, haz clic en el siguiente enlace:`,
+        actionLink: `${this.configService.get('FRONTEND_HOST')}/code/confirm?emailAddress=${user.emailAddress}&code=${confirmationCode.code}`,
+        actionLinkText: 'Activar cuenta',
+        currentYear: new Date().getFullYear(),
+      });
+
+      await this.emailService.sendEmailBrevo({
+        recipient: user,
+        subject: emailTitle,
+        body: htmlContent,
+      });
 
       return user;
     } catch (e) {
@@ -89,9 +127,9 @@ export class AuthenticationService {
   }
 
   async signIn(sigInDto: SignInDto) {
-    const user = await this.userService.getByUsernameOrEmailAddress(
+    const user = (await this.userService.getByUsernameOrEmailAddress(
       sigInDto.emailAddress!,
-    );
+    )) as IUser;
     const isPasswordValid = await bcrypt.compare(
       sigInDto.password,
       user.password,
@@ -169,7 +207,7 @@ export class AuthenticationService {
       isTwoFaEnabled: false,
       twoFaSeed: secret.ascii,
     };
-  
+
     return {
       secret: secret.ascii,
       otpAuthUrl,
@@ -193,7 +231,7 @@ export class AuthenticationService {
       isTwoFaEnabled: true,
       twoFaSeed: user.twoFaSeed,
     };
-  
+
     return {
       token: await this.jwtService.signAsync(payload),
     };
@@ -220,5 +258,83 @@ export class AuthenticationService {
     }
 
     return true;
+  }
+
+  async confirm(confirmDto: ConfirmDto) {
+    const user = (await this.userService.getByUsernameOrEmailAddress(
+      confirmDto.emailAddress,
+    )) as IUser;
+    await this.confirmationCodeService.verify(
+      user,
+      confirmDto.code,
+      ConfirmationCodeType.EMAIL_CONFIRMATION,
+    );
+    return await this.userService.updateById(String(user.id), {
+      isActive: true,
+      isEmailAddressVerified: true,
+    });
+  }
+
+  async setPassActivateUser(setActivateDto: SetActivateDto) {
+    const user = (await this.userService.getByUsernameOrEmailAddress(
+      setActivateDto.emailAddress,
+    )) as IUser;
+    await this.confirmationCodeService.verify(
+      user,
+      setActivateDto.code,
+      ConfirmationCodeType.EMAIL_ACTIVATION,
+    );
+
+    return await this.userService.updateById(String(user.id), {
+      isActive: true,
+      isEmailAddressVerified: true,
+      password: await bcrypt.hash(
+        setActivateDto.password,
+        await bcrypt.genSalt(),
+      ),
+    });
+  }
+
+  async resendCode(resendCodeDto: ResendCodeDto) {
+    const user = await this.userService.getByUsernameOrEmailAddress(
+      resendCodeDto.emailAddress,
+    );
+    if (user.isEmailAddressVerified) {
+      throw new ForbiddenException('Email address is already verified');
+    }
+
+    const confirmationCode = await this.confirmationCodeService.generate(
+      String(user.id),
+      ConfirmationCodeType.EMAIL_CONFIRMATION,
+    );
+
+    const emailTitle = 'Activa tu cuenta';
+    const filePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'assets',
+      'email-templates',
+    );
+    const templateSource = fs.readFileSync(
+      `${filePath}/new-user.html`,
+      'utf-8',
+    );
+    const template = handlebars.compile(templateSource);
+    const htmlContent = template({
+      title: emailTitle,
+      headerTitle: emailTitle,
+      mainContent: `Estás a un paso de activar tu cuenta. Para confirmar tu correo electrónico y configurar tu contraseña, haz clic en el siguiente enlace:`,
+      actionLink: `${this.configService.get('FRONTEND_HOST')}/code/confirm?emailAddress=${user.emailAddress}&code=${confirmationCode.code}`,
+      actionLinkText: 'Activar cuenta',
+      currentYear: new Date().getFullYear(),
+    });
+
+    await this.emailService.sendEmailBrevo({
+      recipient: user,
+      subject: emailTitle,
+      body: htmlContent,
+    });
   }
 }

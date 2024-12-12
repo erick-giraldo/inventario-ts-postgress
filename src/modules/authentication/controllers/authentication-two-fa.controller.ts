@@ -7,13 +7,13 @@ import {
   Get,
   Post,
 } from '@nestjs/common';
-import { Authentication } from './decorators/authentication.decorator';
-import { AuthenticationService } from './authentication.service';
-import { UserDecorator } from './decorators/user.decorator';
+import { Authentication } from '../decorators/authentication.decorator';
+import { AuthenticationService } from '../authentication.service';
+import { UserDecorator } from '../decorators/user.decorator';
 import { EntityWithId } from '@/common/types/types';
-import { User } from '../user/user.entity';
-import { IUser } from '../user/user.interface';
-import { EnableTwoFaDto } from './dto/enable-two-fa.dto';
+import { User } from '../../user/user.entity';
+import { IUser } from '../../user/user.interface';
+import { EnableTwoFaDto } from '../dto/enable-two-fa.dto';
 
 @Controller('authentication/two-factor')
 @ApiTags('authentication')

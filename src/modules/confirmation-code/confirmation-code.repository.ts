@@ -32,7 +32,6 @@ export class ConfirmationCodeRepository extends MongoRepository<ConfirmationCode
   }
 
   store(entity: Omit<ConfirmationCode, keyof AbstractEntity>) {
-    console.log("🚀 ~ ConfirmationCodeRepository ~ store ~ entity:", entity)
     return this.save(entity);
   }
 

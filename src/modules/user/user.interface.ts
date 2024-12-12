@@ -8,7 +8,8 @@ export interface IUser {
   username?: string;
   fullName?: string;
   emailAddress: string;
-  twoFaSeed?: string | null | undefined;
+  isTwoFaEnabled: boolean;
+  twoFaSeed: string;
   isEmailAddressVerified?: boolean | undefined;
   password: string;
   isActive?: boolean | undefined;
