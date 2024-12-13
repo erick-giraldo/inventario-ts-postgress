@@ -53,7 +53,7 @@ export class ProductController {
       },
     },
   })
-  // @Authentication()
+  @Authentication()
   @MapResponseToDto(ReturnProductDto)
   async create(@Body() createProductDto: CreateProductDto) {
     return await this.productService.save(createProductDto);
@@ -61,7 +61,7 @@ export class ProductController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  // @Authentication()
+  @Authentication()
   @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   @ApiPaginationQuery(productPaginateConfig)
   async getPaginated(@Paginate() query: PaginateQuery) {
