@@ -61,6 +61,8 @@ export class ProductService {
 
       return await this.productRepository.store({
         ...data,
+        stock: Number(data.stock),
+        price: Number(data.price),
         status: false,
       });
     } catch (e) {

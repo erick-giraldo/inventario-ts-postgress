@@ -8,6 +8,8 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiOkPaginatedResponse,
@@ -23,13 +25,20 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryProvider } from './provider/cloudinary.provider';
+
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly cloudinaryProvider: CloudinaryProvider,
+  ) {}
 
   @Post()
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOkResponse({
     schema: {
       type: 'object',
@@ -55,8 +64,18 @@ export class ProductController {
   })
   // @Authentication()
   @MapResponseToDto(ReturnProductDto)
-  async create(@Body() createProductDto: CreateProductDto) {
-    return await this.productService.save(createProductDto);
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const uploadResult = await this.cloudinaryProvider.uploadImage(file);
+    console.log("🚀 ~ ProductController ~ uploadResult:", uploadResult)
+    const productData = {
+      ...createProductDto,
+      image: uploadResult.secure_url, // URL de la imagen subida
+    };
+
+    return await this.productService.save(productData);
   }
 
   @Get()
@@ -70,7 +89,7 @@ export class ProductController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @Authentication()
+  // @Authentication()
   @ApiOkResponse({ type: ReturnProductDto })
   async getById(@Param('id') id: string) {
     return await this.productService.getById(id);

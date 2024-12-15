@@ -47,17 +47,19 @@ export class CreateProductDto {
   description: string;
 
   @ApiProperty({ description: 'Available stock of the product.' })
-  @IsNumber({}, { message: 'Stock must be a valid number.' })
-  @Min(0, { message: 'Stock must be a positive number.' })
+  @IsString({ message: 'Description must be a valid string.' })
+  // @IsNumber({}, { message: 'Stock must be a valid number.' })
+  // @Min(0, { message: 'Stock must be a positive number.' })
   stock: number;
 
   @ApiProperty({ description: 'Price of the product.' })
-  @IsNumber({}, { message: 'Price must be a valid number.' })
-  @Min(0, { message: 'Price must be a positive number.' })
+  @IsString({ message: 'Description must be a valid string.' })
+  // @IsNumber({}, { message: 'Price must be a valid number.' })
+  // @Min(0, { message: 'Price must be a positive number.' })
   price: number;
 
   @ApiProperty({ description: 'URL of the product image.' })
-  @IsUrl({}, { message: 'Image must be a valid URL.' })
+  // @IsUrl({}, { message: 'Image must be a valid URL.' })
   image: string;
 
   @ApiProperty({ description: 'Status of the product (optional).' })
