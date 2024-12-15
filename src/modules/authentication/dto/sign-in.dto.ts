@@ -22,14 +22,14 @@ export class SignInDto {
   @IsString()
   password: string;
 
-  // @ApiProperty({
-  //   description: 'Required if 2FA is enabled',
-  //   required: false,
-  //   pattern: '^[0-9]{6}$',
-  // })
-  // @IsString()
-  // @IsOptional()
-  // twoFaCode?: string;
+  @ApiProperty({
+    description: 'Required if 2FA is enabled',
+    required: false,
+    pattern: '^[0-9]{6}$',
+  })
+  @IsString()
+  @IsOptional()
+  twoFaCode?: string;
 }
 
 export class SignInAPIDto {

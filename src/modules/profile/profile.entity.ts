@@ -1,7 +1,6 @@
-import { Entity, Column, ManyToMany, JoinTable, Index } from 'typeorm';
+import { Entity, Column} from 'typeorm';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ProfileType } from '../../utils/enums';
-import { Role } from '../role/role.entity';
 import { ObjectId } from 'mongodb';
 
 @Entity()

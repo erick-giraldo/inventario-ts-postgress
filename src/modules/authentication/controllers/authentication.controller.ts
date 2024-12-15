@@ -1,11 +1,11 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
-import { AuthenticationService } from './authentication.service';
-import { SignInResponseDto } from './dto/sign-in-response-data.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { SignInDto } from './dto/sign-in.dto';
+import { AuthenticationService } from '../authentication.service';
+import { SignInResponseDto } from '../dto/sign-in-response-data.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { SignInDto } from '../dto/sign-in.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { SignUpResponseDto } from './dto/sign-up-response-data.dto';
+import { SignUpResponseDto } from '../dto/sign-up-response-data.dto';
 
 @Controller('authentication')
 @ApiTags('authentication')

@@ -17,6 +17,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { MovementModule } from './modules/movement/movement.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
 import { ClientModule } from './modules/client/client.module';
+import { ConfirmationCodeModule } from './modules/confirmation-code/confirmation-code.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { ClientModule } from './modules/client/client.module';
     MovementModule,
     SupplierModule,
     ClientModule,
+    ConfirmationCodeModule,
+    EmailModule,
   ],
   providers: [
     {

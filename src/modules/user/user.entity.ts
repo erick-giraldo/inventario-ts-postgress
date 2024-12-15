@@ -23,7 +23,7 @@ export class User extends AbstractEntity {
   @Column({ type: 'boolean', default: true })
   readonly isActive?: boolean;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', default: true })
   readonly twoFaSeed?: string | null;
 
   @Column({ type: 'boolean', default: false })

@@ -86,7 +86,7 @@ export class UserController {
     @UserDecorator() user: EntityWithId<User>,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return await this.userService.createUserByClientId(createUserDto, user);
+    return await this.userService.createUser(createUserDto, user);
   }
 
 }
