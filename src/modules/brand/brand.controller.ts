@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import {
   ApiOkPaginatedResponse,
@@ -25,6 +34,14 @@ export class BrandController {
   @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
     return await this.brandService.getPaginate(query);
+  }
+
+  @Get('all')
+  @HttpCode(HttpStatus.OK)
+  @Authentication()
+  @ApiOkResponse({ type: ReturnBrandDto })
+  async getAll() {
+    return await this.brandService.getAll();
   }
 
   @Post()

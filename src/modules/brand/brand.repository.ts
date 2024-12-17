@@ -30,6 +30,14 @@ export class BrandRepository extends MongoRepository<Brand> {
     return { items, count };
   }
 
+  async getAll() {
+    return await this.find({
+      where: {
+        status: true,
+      },
+    });
+  }
+
   async store(product: Brand) {
     return await this.save(product);
   }

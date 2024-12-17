@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm';
@@ -40,6 +40,16 @@ export class BrandService {
         totalPages: Math.ceil(paginated.count / limit),
       },
     };
+  }
+
+  async getAll() {
+    const find = await this.brandRepository.getAll();
+    if (!find) {
+      throw new NotFoundException({
+        message: 'Brand does not exist',
+      });
+    }
+    return find;
   }
 
   async save(data: Brand) {

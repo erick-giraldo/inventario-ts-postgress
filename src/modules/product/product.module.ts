@@ -7,17 +7,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { CategoryModule } from '../category/category.module';
 import { BrandModule } from '../brand/brand.module';
-import { CloudinaryProvider } from './provider/cloudinary.provider';
-
+import { NestjsFormDataModule } from 'nestjs-form-data';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product], MONGODB_CONNEXION_NAME),
     CategoryModule,
     BrandModule,
+    NestjsFormDataModule,
+    StorageModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ProductRepository, CloudinaryProvider ],
-  exports: [ProductRepository, ProductService]
+  providers: [ProductService, ProductRepository],
+  exports: [ProductRepository, ProductService],
 })
 export class ProductModule {}

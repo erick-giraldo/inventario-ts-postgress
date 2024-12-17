@@ -19,10 +19,11 @@ import { SupplierModule } from './modules/supplier/supplier.module';
 import { ClientModule } from './modules/client/client.module';
 import { ConfirmationCodeModule } from './modules/confirmation-code/confirmation-code.module';
 import { EmailModule } from './modules/email/email.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     TypeOrmModule.forRootAsync({
       name: MONGODB_CONNEXION_NAME,
       imports: [ConfigModule],
@@ -52,6 +53,7 @@ import { EmailModule } from './modules/email/email.module';
     ClientModule,
     ConfirmationCodeModule,
     EmailModule,
+    StorageModule,
   ],
   providers: [
     {

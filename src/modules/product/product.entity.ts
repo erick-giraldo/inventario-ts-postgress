@@ -30,5 +30,5 @@ export class Product extends AbstractEntity {
   readonly image: string;
 
   @Column()
-  readonly status?: boolean;
+  readonly status: boolean;
 }

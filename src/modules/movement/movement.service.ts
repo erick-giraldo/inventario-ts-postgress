@@ -129,9 +129,9 @@ export class MovementService {
 
       this.validateStockChange(currentStock, updatedStock, movementData.type);
 
-      await this.productService.update(product.id!.toString(), {
-        stock: updatedStock,
-      });
+      // await this.productService.update(product.id!.toString(), {
+      //   stock: updatedStock,
+      // });
       const movement = this.movementRepository.create({
         ...movementData,
         date: movementData.date,

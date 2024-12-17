@@ -30,6 +30,14 @@ export class CategoryRepository extends MongoRepository<Category> {
     return { items, count };
   }
 
+  async getAll() {
+    return await this.find({
+      where: {
+        status: true,
+      },
+    });
+  }
+
   async store(product: Category) {
     return await this.save(product);
   }

@@ -20,20 +20,25 @@ import {
 import { ProductService } from './product.service';
 import { productPaginateConfig } from './product-config';
 import { ReturnProductDto } from './dto/return-product.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
 import { MapResponseToDto } from '@/common/decorators/map-response-to-dto.decorator';
 import { Authentication } from '../authentication/decorators/authentication.decorator';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CloudinaryProvider } from './provider/cloudinary.provider';
+import { FormDataRequest } from 'nestjs-form-data';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+});
 
 @Controller('product')
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
-    private readonly cloudinaryProvider: CloudinaryProvider,
+    // private readonly cloudinaryProvider: CloudinaryProvider,
   ) {}
 
   @Post()
@@ -68,14 +73,14 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const uploadResult = await this.cloudinaryProvider.uploadImage(file);
-    console.log("🚀 ~ ProductController ~ uploadResult:", uploadResult)
-    const productData = {
-      ...createProductDto,
-      image: uploadResult.secure_url, // URL de la imagen subida
-    };
-
-    return await this.productService.save(productData);
+    //const uploadResult = await this.cloudinaryProvider.uploadImage(file);
+    // console.log("🚀 ~ ProductController ~ uploadResult:", uploadResult)
+    // const productData = {
+    //   ...createProductDto,
+    //   image: uploadResult.secure_url, // URL de la imagen subida
+    // };
+    return true;
+    // return await this.productService.save(productData);
   }
 
   @Get()
@@ -89,7 +94,7 @@ export class ProductController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  // @Authentication()
+  @Authentication()
   @ApiOkResponse({ type: ReturnProductDto })
   async getById(@Param('id') id: string) {
     return await this.productService.getById(id);
@@ -98,8 +103,14 @@ export class ProductController {
   @Patch(':id')
   @Authentication()
   @MapResponseToDto(ReturnProductDto)
-  update(@Param('id') id: string, @Body() data: UpdateProductDto) {
-    return this.productService.update(id, data);
+  @UseInterceptors(FileInterceptor('image', { storage }))
+  @ApiConsumes('multipart/form-data')
+  async update(
+    @Param('id') id: string,
+    @Body() data: UpdateProductDto,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    return this.productService.update(id, { ...data, image });
   }
 
   @Post('activate/:id')

@@ -1,14 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsOptional,
   IsString,
-  IsBoolean,
-  IsUrl,
   IsNumber,
   Min,
-  Length,
+  IsBoolean,
   Matches,
 } from 'class-validator';
+import {
+  HasMimeType,
+  IsFile,
+  MaxFileSize,
+  MemoryStoredFile,
+} from 'nestjs-form-data';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -21,9 +26,9 @@ export class CreateProductDto {
   })
   category: string;
 
-  @ApiProperty({ description: 'Unique code of the product.' })
-  @IsString({ message: 'Code must be a valid string.' })
-  @Length(3, 20, { message: 'Code must be between 3 and 20 characters.' })
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
   code: string;
 
   @ApiProperty({
@@ -34,36 +39,44 @@ export class CreateProductDto {
   @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Brand must be a valid ObjectId.' })
   brand: string;
 
-  @ApiProperty({ description: 'Name of the product.' })
-  @IsString({ message: 'Name must be a valid string.' })
-  @Length(3, 100, { message: 'Name must be between 3 and 100 characters.' })
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
   name: string;
 
-  @ApiProperty({ description: 'Detailed description of the product.' })
-  @IsString({ message: 'Description must be a valid string.' })
-  @Length(5, 500, {
-    message: 'Description must be between 5 and 500 characters.',
-  })
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
   description: string;
 
-  @ApiProperty({ description: 'Available stock of the product.' })
-  @IsString({ message: 'Description must be a valid string.' })
-  // @IsNumber({}, { message: 'Stock must be a valid number.' })
-  // @Min(0, { message: 'Stock must be a positive number.' })
+  @ApiProperty()
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber({}, { message: 'Stock must be a valid number' })
+  @Min(0, { message: 'Stock must be a positive number' })
   stock: number;
 
-  @ApiProperty({ description: 'Price of the product.' })
-  @IsString({ message: 'Description must be a valid string.' })
-  // @IsNumber({}, { message: 'Price must be a valid number.' })
-  // @Min(0, { message: 'Price must be a positive number.' })
+  @ApiProperty()
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber({}, { message: 'Price must be a valid number' })
+  @Min(0, { message: 'Price must be a positive number' })
   price: number;
 
-  @ApiProperty({ description: 'URL of the product image.' })
-  // @IsUrl({}, { message: 'Image must be a valid URL.' })
-  image: string;
-
-  @ApiProperty({ description: 'Status of the product (optional).' })
+  @ApiProperty({
+    description:
+      'Only JPG, JPEG, PNG, PPT, WORD, EXCEL, CSV and PDF files are allowed. Max file size is 10MB per file.',
+    required: false,
+  })
+  @IsFile()
   @IsOptional()
-  @IsBoolean({ message: 'Status must be a boolean value.' })
+  @MaxFileSize(10 * 1024 * 1024)
+  @HasMimeType(['image/jpg', 'image/jpeg', 'image/png'])
+  image: MemoryStoredFile;
+
+  @ApiProperty()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
   status?: boolean;
 }

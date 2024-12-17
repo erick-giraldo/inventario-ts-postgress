@@ -1,5 +1,5 @@
 import { DataSource, MongoRepository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
@@ -7,6 +7,7 @@ import { Product } from './product.entity';
 import { ObjectId } from 'mongodb';
 import { CategoryRepository } from '../category/category.repository';
 import { BrandRepository } from '../brand/brand.repository';
+import { NotModifiedException } from 'src/utils/exections';
 @Injectable()
 export class ProductRepository extends MongoRepository<Product> {
   constructor(
@@ -36,8 +37,7 @@ export class ProductRepository extends MongoRepository<Product> {
       } else if (typeof value === 'string' && value.startsWith('$ilike:')) {
         const ilikeValue = value.slice(7);
         processedFilters[key] = { $regex: new RegExp(ilikeValue, 'i') };
-      }
-      else {
+      } else {
         processedFilters[key] = value;
       }
     }
@@ -92,7 +92,16 @@ export class ProductRepository extends MongoRepository<Product> {
   }
 
   async updateProduct(id: string, updateData: Partial<Product>) {
-    return this.update(id, updateData);
+    const result = await this.update(id, updateData);
+    console.log('🚀 ~ ProductRepository ~ updateProduct ~ result:', result);
+    if (result.affected === 0) {
+      throw new ConflictException({
+        message: 'No changes were made to the product.',
+      });
+    }
+    if (result.affected !== 0 && result.raw.modifiedCount !== 0) {
+      return 'success';
+    }
   }
 
   async activate(id: string, newStatus: boolean) {

@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginateQuery } from 'nestjs-paginate';
 import { CategoryRepository } from './category.repository';
@@ -42,6 +46,16 @@ export class CategoryService {
     };
   }
 
+  async getAll() {
+    const find = await this.categoryRepository.getAll();
+    if (!find) {
+      throw new NotFoundException({
+        message: 'Category does not exist',
+      });
+    }
+    return find;
+  }
+
   async save(data: Category) {
     try {
       return await this.categoryRepository.store({
@@ -65,7 +79,7 @@ export class CategoryService {
   }
 
   async update(id: string, data: Partial<Category>) {
-    const found = await this.findById(id)
+    const found = await this.findById(id);
     if (!found) {
       throw new ConflictException({ message: 'Category does not exist' });
     }
@@ -73,7 +87,7 @@ export class CategoryService {
   }
 
   async activate(id: string) {
-    const found = await this.findById(id)
+    const found = await this.findById(id);
     if (!found) {
       throw new ConflictException({ message: 'Category does not exist' });
     }

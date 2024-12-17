@@ -10,6 +10,12 @@ import { BrandService } from '../brand/brand.service';
 import { validateObjectId } from '@/common/utils/validate';
 import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { StorageService } from '../storage/storage.service';
+import { MemoryStoredFile } from 'nestjs-form-data';
+import { join } from 'path';
+import { Readable } from 'stream';
+import * as fs from 'fs';
 
 @Injectable()
 export class ProductService {
@@ -18,6 +24,7 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     private readonly categoryService: CategoryService,
     private readonly brandService: BrandService,
+    private readonly storageService: StorageService,
   ) {}
 
   private checkCategoryStatus(category: Category): void {
@@ -118,16 +125,35 @@ export class ProductService {
     return found;
   }
 
-  async update(id: string, data: Partial<Product>) {
-    const found = await this.getById(id)
+  async update(id: string, data: UpdateProductDto) {
+    const found = await this.getById(id);
     if (!found) {
       throw new ConflictException({ message: 'Product does not exist' });
     }
-    return this.productRepository.updateProduct(id, data);
+    const image =
+      typeof data.image === 'string' || data.image === undefined
+        ? found.image
+        : (
+            await this.storageService.uploadImage(
+              data.image as Express.Multer.File,
+            )
+          ).url;
+
+    return this.productRepository.updateProduct(id, {
+      brand: data.brand || String(found.brand?.id),
+      category: data.category || String(found.category?.id),
+      code: data.code || found.code,
+      description: data.description || found.description,
+      image: image || found.image,
+      status: data.status !== undefined ? data.status : found.status,
+      name: data.name || found.name,
+      price: data.price || found.price,
+      stock: data.stock || found.stock,
+    });
   }
 
   async activate(id: string) {
-    const found = await this.getById(id)
+    const found = await this.getById(id);
     if (!found) {
       throw new ConflictException({ message: 'Product does not exist' });
     }

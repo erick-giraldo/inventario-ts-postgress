@@ -1,4 +1,8 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
@@ -15,7 +19,9 @@ export class SessionGuard extends AuthGuard('jwt') {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Authorization token missing or malformed');
+      throw new UnauthorizedException(
+        'Authorization token missing or malformed',
+      );
     }
 
     const token = authHeader.replace('Bearer ', '');
@@ -25,13 +31,15 @@ export class SessionGuard extends AuthGuard('jwt') {
       const user = plainToInstance(User, decodedToken);
 
       if (!user.isActive || !user.isEmailAddressVerified) {
-        throw new UnauthorizedException('User is not active or email address is not verified');
+        throw new UnauthorizedException(
+          'User is not active or email address is not verified',
+        );
       }
 
       req.user = user;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token',error.message);
+      throw new UnauthorizedException('Invalid token', error.message);
     }
   }
 }

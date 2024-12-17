@@ -27,6 +27,14 @@ export class CategoryController {
     return await this.categoryService.getPaginate(query);
   }
 
+  @Get('all')
+  @HttpCode(HttpStatus.OK)
+  @Authentication()
+  @ApiOkResponse({ type: ReturnCategoryDto })
+  async getAll() {
+    return await this.categoryService.getAll();
+  }
+
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
