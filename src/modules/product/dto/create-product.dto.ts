@@ -3,10 +3,12 @@ import { Transform } from 'class-transformer';
 import {
   IsOptional,
   IsString,
+  IsUrl,
   IsNumber,
   Min,
   IsBoolean,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 import {
   HasMimeType,
@@ -20,6 +22,7 @@ export class CreateProductDto {
     description: 'ID of the category (e.g., MongoDB ObjectId).',
     example: '507f1f77bcf86cd799439011',
   })
+  @IsOptional()
   @IsString({ message: 'Category must be a valid string.' })
   @Matches(/^[0-9a-fA-F]{24}$/, {
     message: 'Category must be a valid ObjectId.',
@@ -35,6 +38,7 @@ export class CreateProductDto {
     description: 'ID of the brand (e.g., MongoDB ObjectId).',
     example: '507f1f77bcf86cd799439011',
   })
+  @IsOptional()
   @IsString({ message: 'Brand must be a valid string.' })
   @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Brand must be a valid ObjectId.' })
   brand: string;
@@ -54,7 +58,7 @@ export class CreateProductDto {
   @Transform(({ value }) => parseFloat(value))
   @IsNumber({}, { message: 'Stock must be a valid number' })
   @Min(0, { message: 'Stock must be a positive number' })
-  stock: number;
+  stock?: number;
 
   @ApiProperty()
   @IsOptional()
@@ -64,15 +68,15 @@ export class CreateProductDto {
   price: number;
 
   @ApiProperty({
-    description:
-      'Only JPG, JPEG, PNG, PPT, WORD, EXCEL, CSV and PDF files are allowed. Max file size is 10MB per file.',
+    description: 'Product image (optional). If not provided, it can be a URL (string).',
     required: false,
   })
-  @IsFile()
   @IsOptional()
-  @MaxFileSize(10 * 1024 * 1024)
-  @HasMimeType(['image/jpg', 'image/jpeg', 'image/png'])
-  image: MemoryStoredFile;
+  @ValidateIf((o) => typeof o.image !== 'string') // Solo valida si 'image' no es un string
+  @IsFile() // Solo valida si es un archivo
+  @MaxFileSize(10 * 1024 * 1024) // Tamaño máximo de 10 MB
+  @HasMimeType(['image/jpg', 'image/jpeg', 'image/png']) // Tipos de archivo permitidos
+  image: Express.Multer.File | string;
 
   @ApiProperty()
   @IsOptional()

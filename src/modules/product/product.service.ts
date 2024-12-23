@@ -4,7 +4,6 @@ import { Product } from './product.entity';
 import { ProductRepository } from './product.repository';
 import { PaginateQuery } from 'nestjs-paginate';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { CategoryService } from '../category/category.service';
 import { BrandService } from '../brand/brand.service';
 import { validateObjectId } from '@/common/utils/validate';
@@ -12,10 +11,7 @@ import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { StorageService } from '../storage/storage.service';
-import { MemoryStoredFile } from 'nestjs-form-data';
-import { join } from 'path';
-import { Readable } from 'stream';
-import * as fs from 'fs';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -55,7 +51,7 @@ export class ProductService {
     return found;
   }
 
-  async save(data: Omit<Product, keyof AbstractEntity>) {
+  async save(data: CreateProductDto) {
     try {
       validateObjectId(data.category);
       validateObjectId(data.brand);
@@ -66,12 +62,20 @@ export class ProductService {
       const brand = await this.getBrand(data.brand);
       this.checkBrandStatus(brand);
 
-      return await this.productRepository.store({
-        ...data,
-        stock: Number(data.stock),
-        price: Number(data.price),
-        status: false,
-      });
+      const image = await this.storageService.uploadImage(
+              data.image as Express.Multer.File,
+            )
+    return this.productRepository.store({
+      brand: data.brand,
+      category: data.category,
+      code: data.code,
+      description: data.description,
+      image: image.url,
+      status: data.status !== undefined ? data.status : false,
+      name: data.name,
+      price: data.price,
+      stock: 0,
+    });
     } catch (e) {
       if (e.code === 11000) {
         const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
@@ -87,6 +91,34 @@ export class ProductService {
       throw e;
     }
   }
+
+  async update(id: string, data: UpdateProductDto) {
+    const found = await this.getById(id);
+    if (!found) {
+      throw new ConflictException({ message: 'Product does not exist' });
+    }
+    const image =
+      typeof data.image === 'string' || data.image === undefined
+        ? found.image
+        : (
+            await this.storageService.uploadImage(
+              data.image as Express.Multer.File,
+            )
+          ).url;
+
+    return this.productRepository.updateProduct(id, {
+      brand: data.brand || String(found.brand?.id),
+      category: data.category || String(found.category?.id),
+      code: data.code || found.code,
+      description: data.description || found.description,
+      image: image || found.image,
+      status: data.status !== undefined ? data.status : found.status,
+      name: data.name || found.name,
+      price: data.price || found.price,
+      stock: data.stock || found.stock,
+    });
+  }
+
 
   async getPaginate(query: PaginateQuery) {
     const limit = query.limit ?? 10;
@@ -125,33 +157,7 @@ export class ProductService {
     return found;
   }
 
-  async update(id: string, data: UpdateProductDto) {
-    const found = await this.getById(id);
-    if (!found) {
-      throw new ConflictException({ message: 'Product does not exist' });
-    }
-    const image =
-      typeof data.image === 'string' || data.image === undefined
-        ? found.image
-        : (
-            await this.storageService.uploadImage(
-              data.image as Express.Multer.File,
-            )
-          ).url;
-
-    return this.productRepository.updateProduct(id, {
-      brand: data.brand || String(found.brand?.id),
-      category: data.category || String(found.category?.id),
-      code: data.code || found.code,
-      description: data.description || found.description,
-      image: image || found.image,
-      status: data.status !== undefined ? data.status : found.status,
-      name: data.name || found.name,
-      price: data.price || found.price,
-      stock: data.stock || found.stock,
-    });
-  }
-
+ 
   async activate(id: string) {
     const found = await this.getById(id);
     if (!found) {

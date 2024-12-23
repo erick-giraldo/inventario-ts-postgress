@@ -43,44 +43,15 @@ export class ProductController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('image'))
-  @ApiOkResponse({
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'success',
-        },
-        data: {
-          type: 'object',
-          properties: {
-            index: {
-              type: 'number',
-              format: 'number',
-            },
-            address: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  })
   @Authentication()
   @MapResponseToDto(ReturnProductDto)
+  @UseInterceptors(FileInterceptor('image', { storage }))
+  @ApiConsumes('multipart/form-data')
   async create(
-    @Body() createProductDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() data: CreateProductDto,
+    @UploadedFile() image: Express.Multer.File,
   ) {
-    //const uploadResult = await this.cloudinaryProvider.uploadImage(file);
-    // console.log("🚀 ~ ProductController ~ uploadResult:", uploadResult)
-    // const productData = {
-    //   ...createProductDto,
-    //   image: uploadResult.secure_url, // URL de la imagen subida
-    // };
-    return true;
-    // return await this.productService.save(productData);
+    return this.productService.save({ ...data, image });
   }
 
   @Get()
