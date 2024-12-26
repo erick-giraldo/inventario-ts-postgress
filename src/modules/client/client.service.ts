@@ -56,8 +56,7 @@ export class ClientService {
           ? duplicateKeyMatch[1].replace(/["]/g, '')
           : 'unknown';
         throw new ConflictException({
-          message: 'Client already exists',
-          duplicateKey,
+          message: `Client already exists, ${duplicateKey} is duplicated`,
         });
       }
 

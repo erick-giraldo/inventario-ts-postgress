@@ -56,8 +56,7 @@ export class SupplierService {
           ? duplicateKeyMatch[1].replace(/["]/g, '')
           : 'unknown';
         throw new ConflictException({
-          message: 'Supplier already exists',
-          duplicateKey,
+          message: `Supplier already exists, ${duplicateKey} is duplicated`,
         });
       }
 

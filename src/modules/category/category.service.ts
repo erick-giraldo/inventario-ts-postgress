@@ -69,8 +69,7 @@ export class CategoryService {
           ? duplicateKeyMatch[1].replace(/["]/g, '')
           : 'unknown';
         throw new ConflictException({
-          message: 'Category already exists',
-          duplicateKey,
+          message: `Category already exists, ${duplicateKey} is duplicated`,
         });
       }
 

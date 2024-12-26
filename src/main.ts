@@ -10,9 +10,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('bootstrap');
 
-  app.useGlobalFilters(new AllExceptionsFilter());
-  app.useGlobalPipes(new ValidationPipe());
-  // app.useGlobalPipes(new ValidationPipe({ exceptionFactory: mapValidationError }));
+  // app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalPipes(new ValidationPipe());
+  // // app.useGlobalPipes(new ValidationPipe({ exceptionFactory: mapValidationError }));
   app.enableCors({
     origin: configService.get('FRONTEND_HOST'),
     credentials: true,

@@ -65,8 +65,7 @@ export class BrandService {
           ? duplicateKeyMatch[1].replace(/["]/g, '')
           : 'unknown';
         throw new ConflictException({
-          message: 'Brand already exists',
-          duplicateKey,
+          message: `Brand already exists, ${duplicateKey} is duplicated`,
         });
       }
 

@@ -142,8 +142,7 @@ export class UserService {
           ? duplicateKeyMatch[1].replace(/["]/g, '')
           : 'unknown';
         throw new ConflictException({
-          message: 'User already exists',
-          duplicateKey,
+          message: `User already exists, ${duplicateKey} is duplicated`,
         });
       }
       throw e;

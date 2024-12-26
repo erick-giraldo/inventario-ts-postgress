@@ -63,19 +63,22 @@ export class ProductService {
       this.checkBrandStatus(brand);
 
       const image = await this.storageService.uploadImage(
-              data.image as Express.Multer.File,
-            )
-    return this.productRepository.store({
-      brand: data.brand,
-      category: data.category,
-      code: data.code,
-      description: data.description,
-      image: image.url,
-      status: data.status !== undefined ? data.status : false,
-      name: data.name,
-      price: data.price,
-      stock: 0,
-    });
+        data.image as Express.Multer.File,
+      );
+
+      const product = await this.productRepository.store({
+        brand: data.brand,
+        category: data.category,
+        code: data.code,
+        description: data.description,
+        image: image.url,
+        status: data.status !== undefined ? data.status : false,
+        name: data.name,
+        price: data.price,
+        stock: 0,
+      });
+
+      return product;
     } catch (e) {
       if (e.code === 11000) {
         const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
@@ -84,7 +87,7 @@ export class ProductService {
           : 'unknown';
         throw new ConflictException({
           message: 'Product already exists',
-          duplicateKey,
+          detail: duplicateKey,
         });
       }
 
@@ -118,7 +121,6 @@ export class ProductService {
       stock: data.stock || found.stock,
     });
   }
-
 
   async getPaginate(query: PaginateQuery) {
     const limit = query.limit ?? 10;
@@ -157,7 +159,6 @@ export class ProductService {
     return found;
   }
 
- 
   async activate(id: string) {
     const found = await this.getById(id);
     if (!found) {
