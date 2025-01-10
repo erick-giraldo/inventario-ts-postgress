@@ -8,4 +8,5 @@ export const brandPaginateConfig: PaginateConfig<Brand> = {
     name: [FilterOperator.EQ, FilterOperator.ILIKE],
     status: [FilterOperator.EQ],
   },
+  select: ['id', 'createdAt', 'updatedAt', 'deletedAt', 'name', 'status'],
 };

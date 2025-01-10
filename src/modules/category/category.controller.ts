@@ -24,7 +24,7 @@ export class CategoryController {
   @ApiPaginationQuery(categoryPaginateConfig)
   @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
-    return await this.categoryService.getPaginate(query);
+    return await this.categoryService.findPaginated(query);
   }
 
   @Get('all')

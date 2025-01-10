@@ -33,7 +33,7 @@ export class BrandController {
   @ApiPaginationQuery(brandPaginateConfig)
   @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
-    return await this.brandService.getPaginate(query);
+    return await this.brandService.findPaginated(query);
   }
 
   @Get('all')
@@ -79,7 +79,7 @@ export class BrandController {
   @Authentication()
   @MapResponseToDto(ReturnBrandDto)
   update(@Param('id') id: string, @Body() data: UpdateBrandDto) {
-    return this.brandService.update(id, data);
+    return this.brandService.updateById(id, data);
   }
 
   @Post('activate/:id')

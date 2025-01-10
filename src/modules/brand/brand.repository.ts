@@ -1,17 +1,30 @@
-import { DataSource, MongoRepository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
+import { DataSource, Repository } from 'typeorm';
+import { IRepository } from '@/common/interfaces/repository.interface';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { ObjectId } from 'mongodb';
 import { Brand } from './brand.entity';
 
 @Injectable()
-export class BrandRepository extends MongoRepository<Brand> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Brand, dataSource.mongoManager);
+export class BrandRepository
+  extends Repository<Brand>
+  implements IRepository<Brand>
+{
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Brand, dataSource.createEntityManager());
+  }
+  findById(id: string): Promise<(Brand & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
+  }
+  findAll(): Promise<readonly (Brand & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
+  }
+  deleteById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   async findPaginated(
@@ -42,8 +55,11 @@ export class BrandRepository extends MongoRepository<Brand> {
     return await this.save(product);
   }
 
-  async updateProduct(id: string, updateData: Partial<Brand>) {
-    return this.update(id, updateData);
+  async updateById(
+    id: string,
+    entity: Omit<Partial<Brand>, keyof AbstractEntity>,
+  ) {
+    await this.update({ id }, entity);
   }
 
   async activate(id: string, newStatus: boolean) {
@@ -53,6 +69,6 @@ export class BrandRepository extends MongoRepository<Brand> {
   }
 
   async getById(id: string) {
-     return await this.findOne({ where: { _id: new ObjectId(id) } });
+    return await this.findOne({ where: { id } });
   }
 }

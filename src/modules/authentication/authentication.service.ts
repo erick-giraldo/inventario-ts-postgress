@@ -67,7 +67,7 @@ export class AuthenticationService {
 
       const user = await this.userService.create({
         ...userDto,
-        profiles: [defaultProfile.id!],
+        profiles: [defaultProfile],
         password: await bcrypt.hash(userDto.password, await bcrypt.genSalt()),
         isActive: false,
         isEmailAddressVerified: false,

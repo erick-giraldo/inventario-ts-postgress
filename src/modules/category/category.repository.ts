@@ -1,15 +1,37 @@
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { ObjectId } from 'mongodb';
 import { Category } from './category.entity';
+import { IRepository } from '@/common/interfaces/repository.interface';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 
 @Injectable()
-export class CategoryRepository extends MongoRepository<Category> {
+export class CategoryRepository
+  extends Repository<Category>
+  implements IRepository<Category>
+{
   constructor(@InjectDataSource() dataSource: DataSource) {
-      super(Category, dataSource.createEntityManager());
-    }
+    super(Category, dataSource.createEntityManager());
+  }
+  findById(id: string): Promise<(Category & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
+  }
+  findAll(): Promise<readonly (Category & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
+  }
+  updateById(
+    id: string,
+    entity: Omit<Partial<Category>, keyof AbstractEntity>,
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deleteById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 
   async findPaginated(
     page: number,
@@ -50,6 +72,6 @@ export class CategoryRepository extends MongoRepository<Category> {
   }
 
   async getById(id: string) {
-     return await this.findOne({ where: { _id: new ObjectId(id) } });
+    return await this.findOne({ where: { id } });
   }
 }

@@ -1,8 +1,11 @@
-import { Module, UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
+import {
+  Module,
+  UnprocessableEntityException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './modules/product/product.module';
 import { KardexModule } from './modules/kardex/kardex.module';
-import { MONGODB_CONNEXION_NAME } from './utils/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './common/config/environment-variables';
 import { CategoryModule } from './modules/category/category.module';

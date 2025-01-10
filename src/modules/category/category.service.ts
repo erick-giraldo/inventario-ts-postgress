@@ -4,11 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginateQuery } from 'nestjs-paginate';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { CategoryRepository } from './category.repository';
-import { FindOptionsWhere } from 'typeorm';
 import { Category } from './category.entity';
 import { ObjectId } from 'mongodb';
+import { categoryPaginateConfig } from './category-paginate-config';
 
 @Injectable()
 export class CategoryService {
@@ -17,33 +17,8 @@ export class CategoryService {
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async getPaginate(query: PaginateQuery) {
-    const limit = query.limit ?? 10;
-    const page = query.page ?? 1;
-    const sort =
-      query.sortBy?.reduce((acc, [key, value]) => {
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}) || {};
-
-    const paginated = await this.categoryRepository.findPaginated(
-      page,
-      limit,
-      sort as Record<keyof Category, 'ASC' | 'DESC'>,
-      query.filter as FindOptionsWhere<Category>,
-    );
-
-    return {
-      results: paginated.items,
-      meta: {
-        itemsPerPage: limit,
-        totalItems: paginated.count,
-        currentPage: page,
-        totalPages: Math.ceil(paginated.count / limit),
-      },
-    };
+  async findPaginated(query: PaginateQuery) {
+    return paginate(query, this.categoryRepository, categoryPaginateConfig);
   }
 
   async getAll() {

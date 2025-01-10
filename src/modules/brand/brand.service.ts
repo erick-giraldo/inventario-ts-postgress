@@ -1,10 +1,14 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginateQuery } from 'nestjs-paginate';
-import { FindOptionsWhere } from 'typeorm';
-import { ObjectId } from 'mongodb';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { BrandRepository } from './brand.repository';
 import { Brand } from './brand.entity';
+import { PG_UNIQUE_VIOLATION } from '@drdgvhbh/postgres-error-codes';
+import { brandPaginateConfig } from './brand-paginate-config';
 
 @Injectable()
 export class BrandService {
@@ -13,35 +17,9 @@ export class BrandService {
     private readonly brandRepository: BrandRepository,
   ) {}
 
-  async getPaginate(query: PaginateQuery) {
-    const limit = query.limit ?? 10;
-    const page = query.page ?? 1;
-    const sort =
-      query.sortBy?.reduce((acc, [key, value]) => {
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}) || {};
-
-    const paginated = await this.brandRepository.findPaginated(
-      page,
-      limit,
-      sort as Record<keyof Brand, 'ASC' | 'DESC'>,
-      query.filter as FindOptionsWhere<Brand>,
-    );
-
-    return {
-      results: paginated.items,
-      meta: {
-        itemsPerPage: limit,
-        totalItems: paginated.count,
-        currentPage: page,
-        totalPages: Math.ceil(paginated.count / limit),
-      },
-    };
+  async findPaginated(query: PaginateQuery) {
+    return paginate(query, this.brandRepository, brandPaginateConfig);
   }
-
   async getAll() {
     const find = await this.brandRepository.getAll();
     if (!find) {
@@ -59,31 +37,25 @@ export class BrandService {
         status: false,
       });
     } catch (e) {
-      if (e.code === 11000) {
-        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
-        const duplicateKey = duplicateKeyMatch
-          ? duplicateKeyMatch[1].replace(/["]/g, '')
-          : 'unknown';
+      if (e.code === PG_UNIQUE_VIOLATION) {
         throw new ConflictException({
-          message: `Brand already exists, ${duplicateKey} is duplicated`,
+          message: 'Brand already exists',
         });
       }
-
       throw e;
     }
   }
 
-
-  async update(id: string, data: Partial<Brand>) {
-    const found = await this.findById(id)
+  async updateById(id: string, data: Partial<Brand>) {
+    const found = await this.findById(id);
     if (!found) {
       throw new ConflictException({ message: 'Product does not exist' });
     }
-    return this.brandRepository.updateProduct(id, data);
+    return this.brandRepository.update(id, data);
   }
 
   async activate(id: string) {
-    const found = await this.findById(id)
+    const found = await this.findById(id);
     if (!found) {
       throw new ConflictException({ message: 'Product does not exist' });
     }
@@ -92,8 +64,12 @@ export class BrandService {
   }
 
   async findById(id: string) {
-    return await this.brandRepository.findOne({
-      where: { _id: new ObjectId(id) },
+    const found = await this.brandRepository.findOne({
+      where: { id },
     });
+    if (!found) {
+      throw new ConflictException({ message: 'Brand does not exist' });
+    }
+    return found;
   }
 }

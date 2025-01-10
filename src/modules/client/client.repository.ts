@@ -1,65 +1,33 @@
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { ObjectId } from 'mongodb';
 import { Client } from './client.entity';
+import { IRepository } from '@/common/interfaces/repository.interface';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 
 @Injectable()
-export class ClientRepository extends MongoRepository<Client> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Client, dataSource.mongoManager);
+export class ClientRepository
+  extends Repository<Client>
+  implements IRepository<Client>
+{
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Client, dataSource.createEntityManager());
   }
-
-  private isBoolean(value: string): boolean {
-    return value.toLowerCase() === '$eq:true';
+  findById(id: string): Promise<(Client & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
   }
-
-  private processFilters(
-    filter: Record<string, unknown>,
-  ): FindOptionsWhere<Client> {
-    if (!filter) return {};
-
-    const processedFilters: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(filter)) {
-      if (value === '$eq:true' || value === '$eq:false') {
-        processedFilters[key] = this.isBoolean(value);
-      } else if (typeof value === 'string' && value.startsWith('$eq:')) {
-        processedFilters[key] = value.slice(4);
-      } else if (typeof value === 'string' && value.startsWith('$ilike:')) {
-        const ilikeValue = value.slice(7);
-        processedFilters[key] = { $regex: new RegExp(ilikeValue, 'i') };
-      }
-      else {
-        processedFilters[key] = value;
-      }
-    }
-
-    return processedFilters;
+  findAll(): Promise<readonly (Client & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
   }
-
-  async findPaginated(
-    page: number,
-    limit: number,
-    sort: Record<keyof Client, 'ASC' | 'DESC'>,
-    filter: FindOptionsWhere<Client>,
-  ) {
-    const filters = this.processFilters(filter);
-
-    const [items, count] = await this.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: sort,
-      where: {
-        ...filters,
-      },
-    });
-
-    return { items, count };
+  updateById(id: string, entity: Omit<Partial<Client>, keyof AbstractEntity>): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deleteById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   async store(supplier: Client) {

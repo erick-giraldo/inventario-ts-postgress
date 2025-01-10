@@ -27,9 +27,9 @@ export class UserRepository extends MongoRepository<User> {
 
   async updateById(
     id: string,
-    entity: Partial<Omit<User, keyof AbstractEntity>>,
+    entity: Omit<Partial<User>, keyof AbstractEntity>,
   ) {
-    return await this.update({ id: new ObjectId(id) }, entity);
+    await this.update({ id }, entity);
   }
 
   deleteById(id: string): Promise<void> {

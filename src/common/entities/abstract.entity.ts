@@ -1,21 +1,20 @@
 import {
   CreateDateColumn,
   DeleteDateColumn,
-  ObjectId,
-  ObjectIdColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
 
 export abstract class AbstractEntity {
-  @ObjectIdColumn({ name: '_id' })
-  readonly id?: ObjectId;
+  @PrimaryGeneratedColumn('uuid')
+  readonly id?: string
 
   @CreateDateColumn()
-  readonly createdAt?: Date;
+  readonly createdAt?: Date
 
   @UpdateDateColumn()
-  readonly updatedAt?: Date;
+  readonly updatedAt?: Date
 
   @DeleteDateColumn({ select: false })
-  readonly deletedAt?: Date
+  readonly deletedAt?: Date | null
 }

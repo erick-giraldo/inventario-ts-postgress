@@ -1,14 +1,13 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { Entity, Column, Index } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 @Entity()
 export class Brand extends AbstractEntity {
-  @Index({ unique: true })
-  @Column()
+  @Column({ type: 'varchar' })
   readonly name: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   readonly description: string;
 
-  @Column()
+  @Column({ type: 'boolean', default: false })
   readonly status?: boolean;
 }
