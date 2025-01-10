@@ -1,17 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, MongoRepository } from 'typeorm';
-import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ObjectId } from 'mongodb';
 import { Message } from './email.entity';
 
 @Injectable()
 export class EmailRepository extends MongoRepository<Message> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Message, dataSource.mongoManager);
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Message, dataSource.createEntityManager());
   }
   async findAll() {
     return this.find();

@@ -1,18 +1,15 @@
 import { DataSource, MongoRepository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { ObjectId } from 'mongodb';
 import { Category } from './category.entity';
 
 @Injectable()
 export class CategoryRepository extends MongoRepository<Category> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Category, dataSource.mongoManager);
-  }
+  constructor(@InjectDataSource() dataSource: DataSource) {
+      super(Category, dataSource.createEntityManager());
+    }
 
   async findPaginated(
     page: number,

@@ -10,6 +10,7 @@ import { AuthenticationTwoFaController } from './controllers/authentication-two-
 import { ConfirmationCodeModule } from '../confirmation-code/confirmation-code.module';
 import { EmailModule } from '../email/email.module';
 import { AuthenticationCodeController } from './controllers/authentication-code.controller';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthenticationCodeController } from './controllers/authentication-code.
     ProfileModule,
     ConfirmationCodeModule,
     EmailModule,
+    ConfigModule
   ],
   controllers: [
     AuthenticationController,

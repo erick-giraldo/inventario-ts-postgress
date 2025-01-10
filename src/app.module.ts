@@ -20,25 +20,37 @@ import { ClientModule } from './modules/client/client.module';
 import { ConfirmationCodeModule } from './modules/confirmation-code/confirmation-code.module';
 import { EmailModule } from './modules/email/email.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { validateConfig } from './utils/validate-config';
+import { CustomNamingStrategy } from './utils/custom-naming.strategy';
+import { Environment } from './common/enums/environment.enum';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ConfigModule.forRoot({
+      validate: validateConfig,
+    }),
     TypeOrmModule.forRootAsync({
-      name: MONGODB_CONNEXION_NAME,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (
         configService: ConfigService<EnvironmentVariables, true>,
-      ) => ({
-        type: 'mongodb',
-        url: configService.get('MONGODB_HOST', { infer: true }),
-        database: configService.get('MONGODB_NAME', { infer: true }),
-        autoLoadEntities: true,
-        useUnifiedTopology: true,
-        synchronize: true,
-        authSource: configService.get('MONGODB_AUTH_SOURCE', { infer: true }),
-      }),
+      ) => {
+        return {
+          type: 'postgres',
+          host: configService.get('POSTGRES_HOST'),
+          port: configService.get('POSTGRES_PORT'),
+          database: configService.get('POSTGRES_NAME'),
+          username: configService.get('POSTGRES_USERNAME'),
+          password: configService.get('POSTGRES_PASSWORD'),
+          namingStrategy: new CustomNamingStrategy(),
+          logging:
+            configService.get('NODE_ENV') === Environment.PRODUCTION
+              ? ['error']
+              : 'all',
+          autoLoadEntities: true,
+          synchronize: true,
+        };
+      },
     }),
     ProductModule,
     KardexModule,
