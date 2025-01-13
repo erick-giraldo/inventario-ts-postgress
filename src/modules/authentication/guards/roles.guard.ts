@@ -23,12 +23,11 @@ export class RolesGuard implements CanActivate {
 
     const lowercasedRoles = roles.map((it: string) => it.toLowerCase());
     return (
-      // user.profiles?.some((profile) => {
-      //   return profile.roles.some((role) => {
-      //     return lowercasedRoles.includes(role.name.toLowerCase());
-      //   });
-      // }) || false
-      false
+      user.profiles?.some((profile) => {
+        return profile.roles.some((role) => {
+          return lowercasedRoles.includes(role.name.toLowerCase());
+        });
+      }) || false
     );
   }
 }

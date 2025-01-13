@@ -6,13 +6,13 @@ import {
   HttpStatus,
   Get,
   Post,
+  Headers,
 } from '@nestjs/common';
 import { Authentication } from '../decorators/authentication.decorator';
 import { AuthenticationService } from '../authentication.service';
 import { UserDecorator } from '../decorators/user.decorator';
 import { EntityWithId } from '@/common/types/types';
 import { User } from '../../user/user.entity';
-import { IUser } from '../../user/user.interface';
 import { EnableTwoFaDto } from '../dto/enable-two-fa.dto';
 
 @Controller('authentication/two-factor')
@@ -46,8 +46,14 @@ export class AuthenticationTwoFaController {
       },
     },
   })
-  async generate(@UserDecorator() user: EntityWithId<User>) {
-    return await this.authenticationService.generateTwoFactorSecret(user);
+  async generate(
+    @UserDecorator() user: EntityWithId<User>,
+    @Headers('x-session-id') sessionId: string,
+  ) {
+    return await this.authenticationService.generateTwoFactorSecret(
+      user,
+      sessionId,
+    );
   }
 
   @Post('enable')
@@ -65,12 +71,14 @@ export class AuthenticationTwoFaController {
     },
   })
   async enabled(
-    @UserDecorator() user: IUser,
+    @UserDecorator() user: EntityWithId<User>,
     @Body() enableTwoFaDto: EnableTwoFaDto,
+    @Headers('x-session-id') sessionId: string,
   ) {
     await this.authenticationService.enableTwoFactorSecret(
       user,
       enableTwoFaDto,
+      sessionId,
     );
   }
 }

@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 export class SessionService {
   private readonly redis: Redis;
 
-  private static readonly PREFIX = 'account-provider-v2:session:';
+  private static readonly PREFIX = 'inventario-ts:session:';
 
   constructor(private readonly redisService: RedisService) {
     this.redis = this.redisService.getOrThrow();

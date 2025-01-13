@@ -1,20 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { NaturalDocumentType } from '@/common/enums/document-type.enum';
-import { Client } from '../client.entity';
+import { DocumentType } from '@/common/enums/document-type.enum';
+import { Customer } from '../customer.entity';
 
-export class ReturnClientDto implements Client {
+export class ReturnCustomerDto implements Customer {
   @ApiProperty({
     example: 'Jhon Alex',
     description: 'Name of the client',
   })
-  names: string;
-
-  @ApiProperty({
-    example: 'Doe Smith',
-    description: 'Surnames of the client',
-  })
-  surnames: string;
-
+  name: string;
+  
   @ApiProperty({
     example: 'contact@acme.com',
     description: 'Email address of the supplier',
@@ -28,11 +22,11 @@ export class ReturnClientDto implements Client {
   mobileNumber: string;
 
   @ApiProperty({
-    example: NaturalDocumentType.ID,
+    example: DocumentType.ID,
     description: 'Type of identification document',
-    enum: NaturalDocumentType,
+    enum: DocumentType,
   })
-  documentType: NaturalDocumentType;
+  documentType: DocumentType;
 
   @ApiProperty({
     example: '40405020',

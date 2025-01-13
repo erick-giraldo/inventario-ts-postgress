@@ -1,25 +1,21 @@
-import { DataSource, MongoRepository, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ConfirmationCode } from './confirmation-code.entity';
+import { IRepository } from '@/common/interfaces/repository.interface';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { Injectable } from '@nestjs/common';
-import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 
 @Injectable()
-export class ConfirmationCodeRepository extends MongoRepository<ConfirmationCode> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource
-  ) {
-    super(ConfirmationCode, dataSource.mongoManager);
+export class ConfirmationCodeRepository extends Repository<ConfirmationCode> implements IRepository<ConfirmationCode> {
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(ConfirmationCode, dataSource.createEntityManager());
   }
 
   deleteById(id: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  findAll(): Promise<
-    ReadonlyArray<ConfirmationCode & Required<AbstractEntity>>
-  > {
+  findAll(): Promise<ReadonlyArray<ConfirmationCode & Required<AbstractEntity>>> {
     throw new Error('Method not implemented.');
   }
 
@@ -32,13 +28,10 @@ export class ConfirmationCodeRepository extends MongoRepository<ConfirmationCode
   }
 
   store(entity: Omit<ConfirmationCode, keyof AbstractEntity>) {
-    return this.save(entity);
+    return this.save(entity)
   }
 
-  updateById(
-    id: string,
-    entity: Omit<Partial<ConfirmationCode>, keyof AbstractEntity>,
-  ): Promise<void> {
+  updateById(id: string, entity: Omit<Partial<ConfirmationCode>, keyof AbstractEntity>): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

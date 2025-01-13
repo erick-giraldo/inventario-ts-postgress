@@ -60,7 +60,7 @@ export class ProductController {
   @ApiOkPaginatedResponse(ReturnProductDto, productPaginateConfig)
   @ApiPaginationQuery(productPaginateConfig)
   async getPaginated(@Paginate() query: PaginateQuery) {
-    return await this.productService.getPaginate(query);
+    return await this.productService.findPaginated(query);
   }
 
   @Get(':id')

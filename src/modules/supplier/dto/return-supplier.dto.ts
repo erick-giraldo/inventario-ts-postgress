@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CorporateDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 import { Supplier } from '../supplier.entity';
 
 export class ReturnSupplierDto implements Supplier {
@@ -28,11 +28,11 @@ export class ReturnSupplierDto implements Supplier {
   mobileNumber: string;
 
   @ApiProperty({
-    example: CorporateDocumentType.RUC,
+    example: DocumentType.RUC,
     description: 'Type of identification document',
-    enum: CorporateDocumentType, // Swagger genera documentación de los valores del enum
+    enum: DocumentType, // Swagger genera documentación de los valores del enum
   })
-  documentType: CorporateDocumentType
+  documentType: DocumentType
 
   @ApiProperty({
     example: '123456789',

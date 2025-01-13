@@ -9,6 +9,7 @@ import { BrandModule } from '../brand/brand.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { StorageModule } from '../storage/storage.module';
 import { ConfigModule } from '@nestjs/config';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { ConfigModule } from '@nestjs/config';
     BrandModule,
     NestjsFormDataModule,
     StorageModule,
-    ConfigModule
+    ConfigModule,
+    SessionModule
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository],

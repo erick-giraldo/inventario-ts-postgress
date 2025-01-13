@@ -7,21 +7,18 @@ export function setUpSwagger(app: INestApplication) {
     .setTitle('Inventario TS V1')
     .setDescription('API Documentation')
     .setVersion('1.0')
-    .addBearerAuth(
+    .addApiKey(
       {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'Authorization',
-        description: 'Enter JWT token',
+        type: 'apiKey',
+        name: 'x-session-id',
         in: 'header',
       },
-      'JWT',
+      'session-id',
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  
+
   SwaggerModule.setup('doc', app, document);
 
   app.use(

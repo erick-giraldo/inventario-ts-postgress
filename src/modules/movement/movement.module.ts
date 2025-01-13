@@ -7,8 +7,9 @@ import { Movement } from './movement.entity';
 import { ProductModule } from '../product/product.module';
 import { BrandModule } from '../brand/brand.module';
 import { CategoryModule } from '../category/category.module';
-import { ClientModule } from '../client/client.module';
+import { CustomerModule } from '../customer/customer.module';
 import { SupplierModule } from '../supplier/supplier.module';
+import { SessionModule } from '../session/session.module';
 
 
 @Module({
@@ -17,8 +18,9 @@ import { SupplierModule } from '../supplier/supplier.module';
     ProductModule,
     BrandModule,
     CategoryModule,
-    ClientModule,
-    SupplierModule
+    CustomerModule,
+    SupplierModule,
+    SessionModule
   ],
   controllers: [MovementController],
   providers: [MovementService, MovementRepository],

@@ -4,7 +4,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { ParseError, parsePhoneNumberWithError } from 'libphonenumber-js';
-import { CreateClientDto } from '../dto/create-client.dto';
+import { CreateCustomerDto } from '../dto/create-customer.dto';
 
 type ErrorMessageKey =
   | 'NOT_A_NUMBER'
@@ -33,7 +33,7 @@ export class ValidateMobileNumber implements ValidatorConstraintInterface {
   }
 
   validate(mobileNumber: string, args: ValidationArguments): boolean {
-    const dto = args.object as CreateClientDto;
+    const dto = args.object as CreateCustomerDto;
     const numberToValidate = mobileNumber || dto.mobileNumber;
 
     if (!numberToValidate) {
@@ -44,7 +44,7 @@ export class ValidateMobileNumber implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments): string {
-    const dto = args.object as CreateClientDto;
+    const dto = args.object as CreateCustomerDto;
     const numberToValidate = dto.mobileNumber;
 
     if (!numberToValidate) {

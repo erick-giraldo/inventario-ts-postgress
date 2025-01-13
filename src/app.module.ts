@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './modules/product/product.module';
-import { KardexModule } from './modules/kardex/kardex.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from './common/config/environment-variables';
 import { CategoryModule } from './modules/category/category.module';
@@ -19,13 +18,13 @@ import { mapValidationError } from './utils/map-validation-error';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { MovementModule } from './modules/movement/movement.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
-import { ClientModule } from './modules/client/client.module';
+import { CustomerModule } from './modules/customer/customer.module';
 import { ConfirmationCodeModule } from './modules/confirmation-code/confirmation-code.module';
-import { EmailModule } from './modules/email/email.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { validateConfig } from './utils/validate-config';
 import { CustomNamingStrategy } from './utils/custom-naming.strategy';
 import { Environment } from './common/enums/environment.enum';
+import { EmailNotificationModule } from './modules/email-notification/email-notification.module';
 
 @Module({
   imports: [
@@ -56,7 +55,7 @@ import { Environment } from './common/enums/environment.enum';
       },
     }),
     ProductModule,
-    KardexModule,
+    // KardexModule,
     CategoryModule,
     BrandModule,
     UserModule,
@@ -65,9 +64,9 @@ import { Environment } from './common/enums/environment.enum';
     AuthenticationModule,
     MovementModule,
     SupplierModule,
-    ClientModule,
+    CustomerModule,
     ConfirmationCodeModule,
-    EmailModule,
+    EmailNotificationModule,
     StorageModule,
   ],
   providers: [

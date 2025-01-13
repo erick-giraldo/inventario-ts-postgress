@@ -2,7 +2,7 @@ import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsOptional, IsString, Matches, Validate } from 'class-validator';
 import { ValidateMobileNumber } from '../validators/validate-mobile-number';
-import { CorporateDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 
 export class UpdateSupplierDto extends AbstractEntity{
   @ApiProperty()
@@ -33,10 +33,10 @@ export class UpdateSupplierDto extends AbstractEntity{
   @Matches(/^\+[0-9]{2}[0-9]{2,}$/)
   mobileNumber?: string
 
-  @ApiProperty({ enum: CorporateDocumentType })
+  @ApiProperty({ enum: DocumentType })
   @IsOptional()
-  @IsEnum(CorporateDocumentType)
-  documentType?: CorporateDocumentType;
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
 
   @ApiProperty()
   @IsOptional()

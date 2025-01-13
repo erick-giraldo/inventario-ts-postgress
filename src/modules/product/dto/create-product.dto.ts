@@ -3,19 +3,13 @@ import { Transform } from 'class-transformer';
 import {
   IsOptional,
   IsString,
-  IsUrl,
   IsNumber,
   Min,
   IsBoolean,
   Matches,
   ValidateIf,
 } from 'class-validator';
-import {
-  HasMimeType,
-  IsFile,
-  MaxFileSize,
-  MemoryStoredFile,
-} from 'nestjs-form-data';
+import { HasMimeType, IsFile, MaxFileSize } from 'nestjs-form-data';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -68,7 +62,8 @@ export class CreateProductDto {
   price: number;
 
   @ApiProperty({
-    description: 'Product image (optional). If not provided, it can be a URL (string).',
+    description:
+      'Product image (optional). If not provided, it can be a URL (string).',
     required: false,
   })
   @IsOptional()

@@ -1,11 +1,5 @@
-export enum NaturalDocumentType {
+export enum DocumentType {
   ID = 'ID',
-  PP = 'PP',
-  RP = 'RP',
-}
-
-export enum CorporateDocumentType {
-  TIN = 'TIN',
   RUC = 'RUC',
   OTHER = 'OTHER',
 }

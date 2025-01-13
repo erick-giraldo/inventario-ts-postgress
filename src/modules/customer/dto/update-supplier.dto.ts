@@ -9,7 +9,7 @@ import {
   Validate,
 } from 'class-validator';
 import { ValidateMobileNumber } from '../validators/validate-mobile-number';
-import { NaturalDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 
 export class UpdateClientDto extends AbstractEntity {
   @ApiProperty()
@@ -40,10 +40,10 @@ export class UpdateClientDto extends AbstractEntity {
   @Matches(/^\+[0-9]{2}[0-9]{2,}$/)
   mobileNumber?: string;
 
-  @ApiProperty({ enum: NaturalDocumentType })
+  @ApiProperty({ enum: DocumentType })
   @IsOptional()
-  @IsEnum(NaturalDocumentType)
-  documentType?: NaturalDocumentType;
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
 
   @ApiProperty()
   @IsOptional()

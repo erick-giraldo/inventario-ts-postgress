@@ -1,150 +1,82 @@
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { ObjectId } from 'mongodb';
 import { Movement } from './movement.entity';
 import { ProductRepository } from '../product/product.repository';
 import { CategoryRepository } from '../category/category.repository';
 import { BrandRepository } from '../brand/brand.repository';
-import { DateFilter } from '../kardex/interface/kardex-reports.interface';
-import { MovementType } from '@/common/enums/movement-type.enum';
+// import { DateFilter } from '../kardex/interface/kardex-reports.interface';
 import { SupplierRepository } from '../supplier/supplier.repository';
-import { ClientRepository } from '../client/client.repository';
+import { CustomerRepository } from '../customer/customer.repository';
+import { IRepository } from '@/common/interfaces/repository.interface';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 @Injectable()
-export class MovementRepository extends MongoRepository<Movement> {
+export class MovementRepository
+  extends Repository<Movement>
+  implements IRepository<Movement>
+{
   constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
+    @InjectDataSource() dataSource: DataSource,
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly brandRepository: BrandRepository,
     private readonly supplierRepository: SupplierRepository,
-    private readonly clientRepository: ClientRepository,
+    private readonly customerRepository: CustomerRepository,
   ) {
-    super(Movement, dataSource.mongoManager);
+    super(Movement, dataSource.createEntityManager());
+  }
+  findById(id: string): Promise<(Movement & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
+  }
+  findAll(): Promise<readonly (Movement & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
+  }
+  updateById(id: string, entity: Omit<Partial<Movement>, keyof AbstractEntity>): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deleteById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
-  async findPaginated(
-    page: number,
-    limit: number,
-    sort: Record<keyof Movement, 'ASC' | 'DESC'>,
-    filter: FindOptionsWhere<Movement>,
-  ) {
-    const [items, count] = await this.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: sort,
-      where: filter,
-    });
+  // async findAll(dateFilter: DateFilter){
+  //   const items = await this.find({
+  //     where: dateFilter,
+  //     order: { date: 'ASC' },
+  //   });
 
-    const newItems = await Promise.all(
-      items.map(async (item) => {
-        const productDetails = item.product
-          ? await this.productRepository.findOne({
-              where: { _id: new ObjectId(item.product) },
-            })
-          : null;
+  //   // Si no hay items, retornar array vacío en lugar de undefined
+  //   if (!items) return [];
 
-        const categoryDetails = productDetails?.category
-          ? await this.categoryRepository.findOne({
-              where: { _id: new ObjectId(productDetails.category) },
-            })
-          : null;
+  //   // Retornar directamente el array transformado
+  //   return Promise.all(
+  //     items.map(async (item) => {
+  //       const supplierOrClient =
+  //         item.type === MovementType.IN
+  //           ? await this.supplierRepository.findOne({
+  //               where: { _id: new ObjectId(item.supplierOrClient) },
+  //             })
+  //           : item.type === MovementType.OUT
+  //             ? await this.customerRepository.findOne({
+  //                 where: { _id: new ObjectId(item.supplierOrClient) },
+  //               })
+  //             : null;
 
-        const brandDetails = productDetails?.brand
-          ? await this.brandRepository.findOne({
-              where: { _id: new ObjectId(productDetails?.brand) },
-            })
-          : null;
-        const supplierOrClient =
-          item.type === MovementType.IN
-            ? await this.supplierRepository.findOne({
-                where: { _id: new ObjectId(item.supplierOrClient) },
-              })
-            : item.type === MovementType.OUT
-              ? await this.clientRepository.findOne({
-                  where: { _id: new ObjectId(item.supplierOrClient) },
-                })
-              : null;  
-        return {
-          ...item,
-          product: {
-            ...productDetails,
-            category: categoryDetails,
-            brand: brandDetails,
-          },
-          supplierOrClient
-        };
-      }),
-    );
-
-    return { items: newItems, count };
-  }
-
-  async findAll(dateFilter: DateFilter){
-    const items = await this.find({
-      where: dateFilter,
-      order: { date: 'ASC' },
-    });
-    
-    // Si no hay items, retornar array vacío en lugar de undefined
-    if (!items) return [];
-  
-    // Retornar directamente el array transformado
-    return Promise.all(
-      items.map(async (item) => {
-        const supplierOrClient =
-          item.type === MovementType.IN
-            ? await this.supplierRepository.findOne({
-                where: { _id: new ObjectId(item.supplierOrClient) },
-              })
-            : item.type === MovementType.OUT
-              ? await this.clientRepository.findOne({
-                  where: { _id: new ObjectId(item.supplierOrClient) },
-                })
-              : null;
-  
-        return {
-          ...item,
-          supplierOrClient,
-        };
-      }),
-    );
-  }
+  //       return {
+  //         ...item,
+  //         supplierOrClient,
+  //       };
+  //     }),
+  //   );
+  // }
 
   async store(movement: Movement) {
     return await this.save(movement);
   }
 
   async getById(id: string) {
-    const item = await this.findOne({ where: { _id: new ObjectId(id) } });
-    if (!item) return;
-
-    const productDetails = item.product
-      ? await this.productRepository.findOne({
-          where: { _id: new ObjectId(item.product) },
-        })
-      : null;
-    const newItems = {
-      category: productDetails?.category
-        ? await this.categoryRepository.findOne({
-            where: { _id: new ObjectId(productDetails?.category) },
-          })
-        : null,
-      brand: productDetails?.brand
-        ? await this.brandRepository.findOne({
-            where: { _id: new ObjectId(productDetails?.brand) },
-          })
-        : null,
-    };
-    return {
-      ...item,
-      product: {
-        ...productDetails,
-        category: newItems.category,
-        brand: newItems.brand,
-      },
-    };
+    return await this.findOne({ where: { id } });
   }
 }

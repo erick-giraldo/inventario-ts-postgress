@@ -1,17 +1,13 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { Entity, Column, Index } from 'typeorm';
+import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { Category } from '../category/category.entity';
+import { Brand } from '../brand/brand.entity';
 
 @Entity()
 export class Product extends AbstractEntity {
-  @Column()
-  readonly category: string;
-
   @Index({ unique: true })
   @Column()
-  readonly code: string;
-
-  @Column()
-  readonly brand: string;
+  readonly sku: string;
 
   @Index({ unique: true })
   @Column()
@@ -31,4 +27,12 @@ export class Product extends AbstractEntity {
 
   @Column()
   readonly status: boolean;
+
+  @ManyToOne(() => Category, (category) => category.product, { nullable: true })
+  @JoinColumn({ name: 'category_id' })
+  readonly category?: Category | null;
+
+  @ManyToOne(() => Brand, (brand) => brand.product, { nullable: true })
+  @JoinColumn({ name: 'brand_id' })
+  readonly brand?: Category | null;
 }

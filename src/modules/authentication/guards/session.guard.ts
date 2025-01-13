@@ -1,45 +1,34 @@
 import {
-  Injectable,
+  CanActivate,
   ExecutionContext,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtService } from '@nestjs/jwt';
+import { SessionService } from '../../session/session.service';
 import { plainToInstance } from 'class-transformer';
 import { User } from '../../user/user.entity';
 
 @Injectable()
-export class SessionGuard extends AuthGuard('jwt') {
-  constructor(private readonly jwtService: JwtService) {
-    super();
-  }
+export class SessionGuard implements CanActivate {
+  constructor(private readonly sessionService: SessionService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
-    const authHeader = req.headers['authorization'];
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId) throw new UnauthorizedException();
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException(
-        'Authorization token missing or malformed',
-      );
+    const session = await this.sessionService.getSession(sessionId)
+    if (!session) throw new UnauthorizedException();
+
+    const user = plainToInstance(User, JSON.parse(session));
+    if (!user.isActive || !user.isEmailAddressVerified) {
+      throw new UnauthorizedException('Unauthorized', {
+        cause: 'User is not active or email address is not verified'
+      })
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    req.user = user;
 
-    try {
-      const decodedToken = await this.jwtService.verifyAsync(token);
-      const user = plainToInstance(User, decodedToken);
-
-      if (!user.isActive || !user.isEmailAddressVerified) {
-        throw new UnauthorizedException(
-          'User is not active or email address is not verified',
-        );
-      }
-
-      req.user = user;
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token', error.message);
-    }
+    return true
   }
 }

@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Profile } from './profile.entity';
-import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { ObjectId } from 'mongodb';
-import { RoleRepository } from '../role/role.repository';
+import { IRepository } from '@/common/interfaces/repository.interface';
 
 @Injectable()
-export class ProfileRepository extends MongoRepository<Profile> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-    private readonly roleRepository: RoleRepository,
-  ) {
-    super(Profile, dataSource.mongoManager);
+export class ProfileRepository
+  extends Repository<Profile>
+  implements IRepository<Profile>
+{
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Profile, dataSource.createEntityManager());
+  }
+  findAll(): Promise<readonly (Profile & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   async store(entity: Omit<Profile, keyof AbstractEntity>) {
@@ -22,22 +26,23 @@ export class ProfileRepository extends MongoRepository<Profile> {
 
   async updateById(
     id: string,
-    entity: Partial<Omit<Profile, keyof AbstractEntity>>,
+    entity: Omit<Partial<Profile>, keyof AbstractEntity>,
   ) {
-    await this.update({ id: new ObjectId(id) }, entity);
+    await this.update({ id }, entity);
   }
 
-  async deleteById(id: string): Promise<void> {
-    await this.delete(new ObjectId(id));
+  async findById(id: string) {
+    return await this.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        roles: true,
+      },
+    });
   }
 
-  async findById(id: ObjectId) {
-    const profiles = await this.findOneBy({ _id: id });
-    const profileWithRoles = profiles?.roles
-      ? await Promise.all(
-          profiles.roles.map((roleId) => this.roleRepository.findById(roleId)),
-        )
-      : [];
-    return { ...profiles, roles: profileWithRoles };
+  async deleteById(id: string) {
+    await this.delete(id);
   }
 }

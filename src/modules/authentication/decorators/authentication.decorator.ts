@@ -11,7 +11,7 @@ import { RolesGuard } from '../guards/roles.guard';
 export function Authentication(roles?: string[]) {
   return roles
     ? applyDecorators(
-        ApiBearerAuth('JWT'),
+        ApiBearerAuth('session-id'),
         Roles(roles),
         UseGuards(SessionGuard, RolesGuard),
         ApiUnauthorizedResponse({
@@ -31,7 +31,7 @@ export function Authentication(roles?: string[]) {
         ApiForbiddenResponse(),
       )
     : applyDecorators(
-        ApiBearerAuth('JWT'),
+        ApiBearerAuth('session-id'),
         UseGuards(SessionGuard),
         ApiUnauthorizedResponse({
           schema: {

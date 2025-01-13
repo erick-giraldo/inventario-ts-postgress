@@ -1,17 +1,16 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from './product.entity';
 import { ProductRepository } from './product.repository';
-import { PaginateQuery } from 'nestjs-paginate';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { CategoryService } from '../category/category.service';
 import { BrandService } from '../brand/brand.service';
-import { validateObjectId } from '@/common/utils/validate';
 import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { StorageService } from '../storage/storage.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { PG_UNIQUE_VIOLATION } from '@drdgvhbh/postgres-error-codes';
+import { productPaginateConfig } from './product-config';
 
 @Injectable()
 export class ProductService {
@@ -22,6 +21,10 @@ export class ProductService {
     private readonly brandService: BrandService,
     private readonly storageService: StorageService,
   ) {}
+
+  async findPaginated(query: PaginateQuery) {
+    return paginate(query, this.productRepository, productPaginateConfig);
+  }
 
   private checkCategoryStatus(category: Category): void {
     if (!category.status) {
@@ -53,9 +56,6 @@ export class ProductService {
 
   async save(data: CreateProductDto) {
     try {
-      validateObjectId(data.category);
-      validateObjectId(data.brand);
-
       const category = await this.getCategory(data.category);
       this.checkCategoryStatus(category);
 
@@ -67,9 +67,9 @@ export class ProductService {
       );
 
       const product = await this.productRepository.store({
-        brand: data.brand,
-        category: data.category,
-        code: data.code,
+        brand,
+        category,
+        sku: data.code,
         description: data.description,
         image: image.url,
         status: data.status !== undefined ? data.status : false,
@@ -80,17 +80,11 @@ export class ProductService {
 
       return product;
     } catch (e) {
-      if (e.code === 11000) {
-        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
-        const duplicateKey = duplicateKeyMatch
-          ? duplicateKeyMatch[1].replace(/["]/g, '')
-          : 'unknown';
+      if (e.code === PG_UNIQUE_VIOLATION) {
         throw new ConflictException({
           message: 'Product already exists',
-          detail: duplicateKey,
         });
       }
-
       throw e;
     }
   }
@@ -100,6 +94,12 @@ export class ProductService {
     if (!found) {
       throw new ConflictException({ message: 'Product does not exist' });
     }
+    const category = data.category
+      ? await this.getCategory(data.category)
+      : found.category;
+
+    const brand = data.brand ? await this.getBrand(data.brand) : found.brand;
+
     const image =
       typeof data.image === 'string' || data.image === undefined
         ? found.image
@@ -110,9 +110,9 @@ export class ProductService {
           ).url;
 
     return this.productRepository.updateProduct(id, {
-      brand: data.brand || String(found.brand?.id),
-      category: data.category || String(found.category?.id),
-      code: data.code || found.code,
+      brand: brand,
+      category: category,
+      sku: data.code || found.sku,
       description: data.description || found.description,
       image: image || found.image,
       status: data.status !== undefined ? data.status : found.status,
@@ -122,35 +122,7 @@ export class ProductService {
     });
   }
 
-  async getPaginate(query: PaginateQuery) {
-    const limit = query.limit ?? 10;
-    const page = query.page ?? 1;
-    const sort =
-      query.sortBy?.reduce((acc, [key, value]) => {
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}) || {};
-
-    const paginated = await this.productRepository.findPaginated(
-      page,
-      limit,
-      sort as Record<keyof Product, 'ASC' | 'DESC'>,
-      query.filter as FindOptionsWhere<Product>,
-    );
-
-    return {
-      results: paginated.items,
-      meta: {
-        itemsPerPage: limit,
-        totalItems: paginated.count,
-        currentPage: page,
-        totalPages: Math.ceil(paginated.count / limit),
-      },
-    };
-  }
-
+  
   async getById(id: string) {
     const found = await this.productRepository.getById(id);
     if (!found) {

@@ -1,23 +1,33 @@
-import { Entity, Column} from 'typeorm';
+import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Role } from '../role/role.entity';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { ProfileType } from '../../utils/enums';
-import { ObjectId } from 'mongodb';
 
 @Entity()
 export class Profile extends AbstractEntity {
-  @Column()
+  @Column({ type: 'varchar' })
   readonly name: string;
 
-  @Column()
+  @Column({ type: 'text' })
   readonly description: string;
 
-  @Column()
+  @Column({ type: 'text' })
   readonly shortName: string;
 
-  @Column({ default: ProfileType.USER })
+  @Column({ type: 'varchar', default: ProfileType.USER })
   readonly type?: ProfileType;
 
-  @Column({ type: 'array', nullable: true })
-  readonly roles?: ObjectId[];
-  
+  @ManyToMany(() => Role, (role) => role.profiles)
+  @JoinTable({
+    name: 'profiles_has_roles',
+    joinColumn: {
+      name: 'profile_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  readonly roles: Role[];
 }

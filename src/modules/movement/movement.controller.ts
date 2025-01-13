@@ -35,7 +35,7 @@ export class MovementController {
   @ApiOkPaginatedResponse(ReturnMovementDto, movementPaginateConfig)
   @ApiPaginationQuery(movementPaginateConfig)
   async getPaginated(@Paginate() query: PaginateQuery) {
-    return await this.movementService.getPaginate(query);
+    return await this.movementService.findPaginated(query);
   }
 
   @Get(':id')

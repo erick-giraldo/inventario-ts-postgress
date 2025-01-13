@@ -1,13 +1,10 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { NaturalDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 import { Entity, Column, Index } from 'typeorm';
 @Entity()
-export class Client extends AbstractEntity {
+export class Customer extends AbstractEntity {
   @Column()
-  readonly names: string;
-
-  @Column()
-  readonly surnames: string;
+  readonly name: string;
 
   @Column()
   @Index({ unique: true })
@@ -19,9 +16,9 @@ export class Client extends AbstractEntity {
 
   @Column({
     type: 'enum',
-    enum: NaturalDocumentType
+    enum: DocumentType
   })
-  readonly documentType: NaturalDocumentType;
+  readonly documentType: DocumentType;
 
   @Column()
   @Index({ unique: true })

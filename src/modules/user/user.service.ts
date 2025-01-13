@@ -1,61 +1,26 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
-import { PaginateQuery } from 'nestjs-paginate';
-import { FindOptionsWhere } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { EntityWithId } from '@/common/types/types';
-import { ObjectId } from 'mongodb';
-import { ProfileRepository } from '../profile/profile.repository';
-import { ProfileType } from 'src/utils/enums';
-import * as bcrypt from 'bcrypt';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { UserType } from './user-type.enum';
+import { userPaginateConfig } from './user-paginate-config';
+import { SessionService } from '../session/session.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly profileRepository: ProfileRepository,
+    private readonly sessionService: SessionService,
   ) {}
 
-  async getPaginate(query: PaginateQuery) {
-    const limit = query.limit ?? 10;
-    const page = query.page ?? 1;
-    const sort =
-      query.sortBy?.reduce((acc, [key, value]) => {
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}) || {};
-
-    const paginated = await this.userRepository.findPaginated(
-      page,
-      limit,
-      sort as Record<keyof User, 'ASC' | 'DESC'>,
-      query.filter as FindOptionsWhere<User>,
-    );
-
-    return {
-      results: paginated.items,
-      meta: {
-        itemsPerPage: limit,
-        totalItems: paginated.count,
-        currentPage: page,
-        totalPages: Math.ceil(paginated.count / limit),
-      },
-    };
+  async findPaginated(query: PaginateQuery) {
+    return paginate(query, this.userRepository, userPaginateConfig);
   }
 
   async create(user: Omit<User, 'toJSON'>) {
     return await this.userRepository.store(user);
   }
-  
+
   async findById(id: string) {
     const found = await this.userRepository.findById(id);
     if (!found) {
@@ -69,90 +34,94 @@ export class UserService {
   async getByUsernameOrEmailAddress(emailAddress: string) {
     const found =
       await this.userRepository.findByUsernameOrEmailAddress(emailAddress);
-    if (!found) {
-      throw new NotFoundException({
-        message: 'User not Found',
-      });
-    }
+    if (!found) throw new NotFoundException();
+
     return found;
   }
 
-  async createUser(
-    createUserDto: CreateUserDto,
-    user: EntityWithId<User>,
-  ): Promise<boolean> {
-    try {
-      if (!user.profiles) {
-        throw new NotFoundException({
-          message: 'User has no profile assigned',
-        });
-      }
+  // async createUser(
+  //   createUserDto: CreateUserDto,
+  //   user: EntityWithId<User>,
+  // ): Promise<boolean> {
+  //   try {
+  //     if (!user.profiles) {
+  //       throw new NotFoundException({
+  //         message: 'User has no profile assigned',
+  //       });
+  //     }
 
-      const foundProfiles = await Promise.all(
-        user.profiles.map((profile) => {
-          const profileId = new ObjectId(profile);
-          return this.profileRepository.findById(profileId);
-        }),
-      );
+  //     const foundProfiles = await Promise.all(
+  //       user.profiles.map((profile) => {
+  //         return this.profileRepository.findById(profile.id);
+  //       }),
+  //     );
 
-      if (!foundProfiles.some((profile) => profile.shortName === 'owner')) {
-        throw new NotFoundException({
-          message: 'User has no owner profile assigned',
-        });
-      }
+  //     if (!foundProfiles.some((profile) => profile.shortName === 'owner')) {
+  //       throw new NotFoundException({
+  //         message: 'User has no owner profile assigned',
+  //       });
+  //     }
 
-      const defaultProfile = await this.profileRepository.findOne({
-        where: {
-          type: ProfileType.USER,
-          shortName: 'viewer',
-        },
-      });
-      const profileData = await this.profileRepository.findOne({
-        where: {
-          type: ProfileType.USER,
-          shortName: createUserDto.shortProfile,
-        },
-      });
+  //     const defaultProfile = await this.profileRepository.findOne({
+  //       where: {
+  //         type: ProfileType.USER,
+  //         shortName: 'viewer',
+  //       },
+  //     });
+  //     const profileData = await this.profileRepository.findOne({
+  //       where: {
+  //         type: ProfileType.USER,
+  //         shortName: createUserDto.shortProfile,
+  //       },
+  //     });
 
-      const profiles = profileData ? profileData : defaultProfile;
+  //     const profiles = profileData ? profileData : defaultProfile;
 
-      if (!profiles) {
-        throw new NotFoundException({
-          message: 'Profile not found',
-        });
-      }
+  //     if (!profiles) {
+  //       throw new NotFoundException({
+  //         message: 'Profile not found',
+  //       });
+  //     }
 
-      const hashedPassword = await bcrypt.hash('', await bcrypt.genSalt());
+  //     const hashedPassword = await bcrypt.hash('', await bcrypt.genSalt());
 
-      const createUser = {
-        ...createUserDto,
-        password: hashedPassword,
-        profiles: [profiles.id!],
-        isActive: false,
-        isEmailAddressVerified: false,
-        isTwoFaEnabled: false,
-        userType: UserType.USER
-      };
-      await this.userRepository.save(createUser);
-      return true;
-    } catch (e) {
-      if (e.code === 11000) {
-        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
-        const duplicateKey = duplicateKeyMatch
-          ? duplicateKeyMatch[1].replace(/["]/g, '')
-          : 'unknown';
-        throw new ConflictException({
-          message: `User already exists, ${duplicateKey} is duplicated`,
-        });
-      }
-      throw e;
-    }
+  //     const createUser = {
+  //       ...createUserDto,
+  //       password: hashedPassword,
+  //       profiles: [profiles.id!],
+  //       isActive: false,
+  //       isEmailAddressVerified: false,
+  //       isTwoFaEnabled: false,
+  //       userType: UserType.USER
+  //     };
+  //     await this.userRepository.save(createUser);
+  //     return true;
+  //   } catch (e) {
+  //     if (e.code === 11000) {
+  //       const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
+  //       const duplicateKey = duplicateKeyMatch
+  //         ? duplicateKeyMatch[1].replace(/["]/g, '')
+  //         : 'unknown';
+  //       throw new ConflictException({
+  //         message: `User already exists, ${duplicateKey} is duplicated`,
+  //       });
+  //     }
+  //     throw e;
+  //   }
+  // }
+
+  async createUser(user: Omit<User, 'toJSON'>) {
+    return await this.userRepository.store(user);
   }
 
   async updateById(
     id: string,
-    user: Partial<Omit<User, keyof AbstractEntity | 'toJSON'>>,
+    entity: Partial<Omit<User, keyof AbstractEntity | 'toJSON'>>,
+    sessionId?: string,
   ) {
-    return await this.userRepository.updateById(id, user);
+    const result = await this.userRepository.updateById(id, entity);
+    if (sessionId) await this.sessionService.updateSession(sessionId, entity);
+
+    return result;
   }
 }

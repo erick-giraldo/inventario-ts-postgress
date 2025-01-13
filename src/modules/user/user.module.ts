@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { ProfileModule } from '../profile/profile.module';
 import { ConfigModule } from '@nestjs/config';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     ProfileModule,
-    ConfigModule
+    ConfigModule,
+    SessionModule,
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],

@@ -10,10 +10,10 @@ import { CreateMovementDto } from './dto/create-movement.dto';
 import { MovementRepository } from './movement.repository';
 import { ProductService } from '../product/product.service';
 import { MovementType } from '@/common/enums/movement-type.enum';
-import { PaginateQuery } from 'nestjs-paginate';
-import { FindOptionsWhere } from 'typeorm';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { EntityWithId } from '@/common/types/types';
 import { User } from '../user/user.entity';
+import { movementPaginateConfig } from './movement-config';
 
 @Injectable()
 export class MovementService {
@@ -23,33 +23,8 @@ export class MovementService {
     private readonly productService: ProductService,
   ) {}
 
-  async getPaginate(query: PaginateQuery) {
-    const limit = query.limit ?? 10;
-    const page = query.page ?? 1;
-    const sort =
-      query.sortBy?.reduce((acc, [key, value]) => {
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}) || {};
-
-    const paginated = await this.movementRepository.findPaginated(
-      page,
-      limit,
-      sort as Record<keyof Movement, 'ASC' | 'DESC'>,
-      query.filter as FindOptionsWhere<Movement>,
-    );
-
-    return {
-      results: paginated.items,
-      meta: {
-        itemsPerPage: limit,
-        totalItems: paginated.count,
-        currentPage: page,
-        totalPages: Math.ceil(paginated.count / limit),
-      },
-    };
+  async findPaginated(query: PaginateQuery) {
+    return paginate(query, this.movementRepository, movementPaginateConfig);
   }
 
   async getById(id: string) {
@@ -102,7 +77,6 @@ export class MovementService {
     movementData: CreateMovementDto,
     user: EntityWithId<User>,
   ): Promise<Movement> {
-    console.log("🚀 ~ MovementService ~ user:", user)
     try {
       this.validateMovementData(movementData);
 

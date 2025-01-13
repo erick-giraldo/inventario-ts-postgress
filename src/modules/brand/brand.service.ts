@@ -20,6 +20,7 @@ export class BrandService {
   async findPaginated(query: PaginateQuery) {
     return paginate(query, this.brandRepository, brandPaginateConfig);
   }
+  
   async getAll() {
     const find = await this.brandRepository.getAll();
     if (!find) {

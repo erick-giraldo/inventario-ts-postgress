@@ -1,17 +1,21 @@
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { AbstractEntity } from '@/common/entities/abstract.entity';
 import { Injectable } from '@nestjs/common';
 import { Role } from './role.entity';
 import { ObjectId } from 'mongodb'; // Importa ObjectId
-import { MONGODB_CONNEXION_NAME } from 'src/utils/constants';
+import { IRepository } from '@/common/interfaces/repository.interface';
 
 @Injectable()
-export class RoleRepository extends MongoRepository<Role> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Role, dataSource.mongoManager);
+export class RoleRepository
+  extends Repository<Role>
+  implements IRepository<Role>
+{
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Role, dataSource.createEntityManager());
+  }
+  findById(id: string): Promise<(Role & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
   }
 
   async findAll() {
@@ -28,8 +32,8 @@ export class RoleRepository extends MongoRepository<Role> {
   async updateById(
     id: string,
     entity: Omit<Partial<Role>, keyof AbstractEntity>,
-  ): Promise<void> {
-    await this.update({ id: new ObjectId(id) }, entity); // Convierte id a ObjectId
+  ) {
+    await this.update({ id }, entity);
   }
 
   async deleteById(id: string): Promise<void> {
@@ -41,14 +45,10 @@ export class RoleRepository extends MongoRepository<Role> {
   }
 
   async getAll() {
-    return this.find({
-      relations: {
-        profiles: true,
-      },
-    });
+    return this.find();
   }
 
-  async findById(id: ObjectId) {
-    return await this.findOneBy({ _id: id });
+  async getById(id: string) {
+    return await this.findOne({ where: { id } });
   }
 }

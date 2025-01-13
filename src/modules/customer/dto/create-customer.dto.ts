@@ -1,16 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsString, Matches, Validate } from 'class-validator';
+import { IsEmail, IsEnum, IsString, Validate } from 'class-validator';
 import { ValidateMobileNumber } from '../validators/validate-mobile-number';
-import { NaturalDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 
-export class CreateClientDto {
+export class CreateCustomerDto {
   @ApiProperty()
   @IsString()
-  names: string;
-
-  @ApiProperty()
-  @IsString()
-  surnames: string;
+  name: string;
 
   @ApiProperty({
     description: 'Email address must be from a non-disposable domain',
@@ -27,9 +23,9 @@ export class CreateClientDto {
   @Validate(ValidateMobileNumber)
   mobileNumber: string;
 
-  @ApiProperty({ enum: NaturalDocumentType })
-  @IsEnum(NaturalDocumentType)
-  documentType: NaturalDocumentType;
+  @ApiProperty({ enum: DocumentType })
+  @IsEnum(DocumentType)
+  documentType: DocumentType;
 
   @ApiProperty()
   @IsString()

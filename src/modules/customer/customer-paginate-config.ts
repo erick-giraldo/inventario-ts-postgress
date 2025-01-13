@@ -1,12 +1,12 @@
 import { FilterOperator, PaginateConfig } from 'nestjs-paginate';
-import { Client } from './client.entity';
+import { Customer } from './customer.entity';
 
 
-export const clientPaginateConfig: PaginateConfig<Client> = {
+export const customerPaginateConfig: PaginateConfig<Customer> = {
   sortableColumns: ['createdAt'],
   filterableColumns: {
     id: [FilterOperator.EQ],
-    names: [FilterOperator.ILIKE],
+    name: [FilterOperator.ILIKE],
     email: [FilterOperator.EQ, FilterOperator.ILIKE],
     documentType: [FilterOperator.EQ, FilterOperator.ILIKE],
     documentNumber: [FilterOperator.EQ, FilterOperator.ILIKE],

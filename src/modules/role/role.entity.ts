@@ -7,6 +7,9 @@ export class Role extends AbstractEntity {
   @Column({ type: 'varchar' })
   readonly name: string;
 
-  @Column({ type: 'varchar', default: 'user' })
+  @Column({ type: 'varchar', default: 'client' })
   readonly type: string;
+
+  @ManyToMany(() => Profile, (profile) => profile.roles)
+  readonly profiles: Profile[];
 }

@@ -1,5 +1,5 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { CorporateDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 import { Entity, Column, Index } from 'typeorm';
 @Entity()
 export class Supplier extends AbstractEntity {
@@ -20,9 +20,9 @@ export class Supplier extends AbstractEntity {
 
   @Column({
     type: 'enum',
-    enum: CorporateDocumentType
+    enum: DocumentType
   })
-  readonly documentType: CorporateDocumentType;
+  readonly documentType: DocumentType;
 
   @Column()
   @Index({ unique: true })

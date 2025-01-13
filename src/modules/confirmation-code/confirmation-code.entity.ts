@@ -1,5 +1,6 @@
 import { AbstractEntity } from '@/common/entities/abstract.entity';
-import { Column, Entity, JoinColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { User } from '../user/user.entity';
 import { ConfirmationCodeType } from './confirmation-code-type.enum';
 
 @Entity()
@@ -16,6 +17,7 @@ export class ConfirmationCode extends AbstractEntity {
   @Column({ type: 'enum', enum: ConfirmationCodeType })
   readonly type: ConfirmationCodeType
 
+  @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
-  readonly user?: string;
+  readonly user?: User;
 }

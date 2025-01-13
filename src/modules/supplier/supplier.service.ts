@@ -83,8 +83,12 @@ export class SupplierService {
   }
 
   async findById(id: string) {
-    return await this.supplierRepository.findOne({
-      where: { _id: new ObjectId(id) },
+    const found = await this.supplierRepository.findOne({
+      where: { id },
     });
+    if (!found) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    return found;
   }
 }

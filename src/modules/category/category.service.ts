@@ -9,6 +9,7 @@ import { CategoryRepository } from './category.repository';
 import { Category } from './category.entity';
 import { ObjectId } from 'mongodb';
 import { categoryPaginateConfig } from './category-paginate-config';
+import { PG_UNIQUE_VIOLATION } from '@drdgvhbh/postgres-error-codes';
 
 @Injectable()
 export class CategoryService {
@@ -38,25 +39,17 @@ export class CategoryService {
         status: false,
       });
     } catch (e) {
-      if (e.code === 11000) {
-        const duplicateKeyMatch = e.message.match(/\{ (.+?) \}/);
-        const duplicateKey = duplicateKeyMatch
-          ? duplicateKeyMatch[1].replace(/["]/g, '')
-          : 'unknown';
+      if (e.code === PG_UNIQUE_VIOLATION) {
         throw new ConflictException({
-          message: `Category already exists, ${duplicateKey} is duplicated`,
+          message: 'Category already exists',
         });
       }
-
       throw e;
     }
   }
 
   async update(id: string, data: Partial<Category>) {
-    const found = await this.findById(id);
-    if (!found) {
-      throw new ConflictException({ message: 'Category does not exist' });
-    }
+    await this.findById(id);
     return this.categoryRepository.updateProduct(id, data);
   }
 
@@ -69,9 +62,14 @@ export class CategoryService {
     return this.categoryRepository.activate(id, newStatus);
   }
 
+  
   async findById(id: string) {
-    return await this.categoryRepository.findOne({
-      where: { _id: new ObjectId(id) },
+    const found = await this.categoryRepository.findOne({
+      where: { id },
     });
+    if (!found) {
+      throw new ConflictException({ message: 'Category does not exist' });
+    }
+    return found;
   }
 }

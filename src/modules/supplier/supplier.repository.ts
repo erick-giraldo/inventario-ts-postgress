@@ -1,17 +1,34 @@
-import { DataSource, MongoRepository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { MONGODB_CONNEXION_NAME } from '../../utils/constants';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 import { ObjectId } from 'mongodb';
 import { Supplier } from './supplier.entity';
+import { IRepository } from '@/common/interfaces/repository.interface';
+import { AbstractEntity } from '@/common/entities/abstract.entity';
 
 @Injectable()
-export class SupplierRepository extends MongoRepository<Supplier> {
-  constructor(
-    @InjectDataSource(MONGODB_CONNEXION_NAME) dataSource: DataSource,
-  ) {
-    super(Supplier, dataSource.mongoManager);
+export class SupplierRepository
+  extends Repository<Supplier>
+  implements IRepository<Supplier>
+{
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(Supplier, dataSource.createEntityManager());
+  }
+  findById(id: string): Promise<(Supplier & AbstractEntity) | null> {
+    throw new Error('Method not implemented.');
+  }
+  findAll(): Promise<readonly (Supplier & AbstractEntity)[]> {
+    throw new Error('Method not implemented.');
+  }
+  updateById(id: string, entity: Omit<Partial<Supplier>, keyof AbstractEntity>): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deleteById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  restoreById(id: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   async findPaginated(
@@ -45,6 +62,6 @@ export class SupplierRepository extends MongoRepository<Supplier> {
   }
 
   async getById(id: string) {
-    return await this.findOne({ where: { _id: new ObjectId(id) } });
+    return await this.findOne({ where: { id } });
   }
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsString, Matches, Validate } from 'class-validator';
+import { IsEmail, IsEnum, IsString, Validate } from 'class-validator';
 import { ValidateMobileNumber } from '../validators/validate-mobile-number';
-import { CorporateDocumentType } from '@/common/enums/document-type.enum';
+import { DocumentType } from '@/common/enums/document-type.enum';
 
 export class CreateSupplierDto {
   @ApiProperty()
@@ -28,9 +28,9 @@ export class CreateSupplierDto {
   // @Matches(/^\+[0-9]{2}[0-9]{2,}$/)
   mobileNumber: string;
 
-  @ApiProperty({ enum: CorporateDocumentType })
-  @IsEnum(CorporateDocumentType)
-  documentType: CorporateDocumentType;
+  @ApiProperty({ enum: DocumentType })
+  @IsEnum(DocumentType)
+  documentType: DocumentType;
 
   @ApiProperty()
   @IsString()

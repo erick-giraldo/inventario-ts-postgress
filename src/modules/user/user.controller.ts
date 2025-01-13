@@ -36,7 +36,7 @@ export class UserController {
   @ApiPaginationQuery(userPaginateConfig)
   @Authentication()
   async getPaginated(@Paginate() query: PaginateQuery) {
-    return await this.userService.getPaginate(query);
+    return await this.userService.findPaginated(query);
   }
 
   @Post('')
@@ -86,7 +86,8 @@ export class UserController {
     @UserDecorator() user: EntityWithId<User>,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return await this.userService.createUser(createUserDto, user);
+    return "success"
+    // return await this.userService.createUser(createUserDto, user);
   }
 
 }
