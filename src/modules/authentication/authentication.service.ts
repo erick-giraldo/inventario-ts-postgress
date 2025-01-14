@@ -50,18 +50,22 @@ export class AuthenticationService {
     }
 
     try {
-      const defaultProfile = await this.profileRepository.find();
-      console.log("🚀 ~ AuthenticationService ~ signUpUser ~ defaultProfile:", defaultProfile)
+      const defaultProfile = await this.profileRepository.findOne({
+        where: {
+          type: ProfileType.USER,
+          shortName: 'owner',
+        },
+      });
 
       if (!defaultProfile) {
         throw new NotFoundException({
           message: 'You cannot sign up at the moment',
         });
       }
-      
+
       const user = await this.userService.create({
         ...userDto,
-        profiles: [],
+        profiles: [defaultProfile],
         password: await bcrypt.hash(userDto.password, await bcrypt.genSalt()),
         isActive: false,
       });

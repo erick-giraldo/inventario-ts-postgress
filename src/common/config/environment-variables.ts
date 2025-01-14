@@ -102,4 +102,12 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   FRONTEND_HOST: string
+
+  @IsNotEmpty()
+  @IsString()
+  UPSTASH_REDIS_REST_URL: string
+
+  @IsNotEmpty()
+  @IsString()
+  UPSTASH_REDIS_REST_TOKEN: string
 }
