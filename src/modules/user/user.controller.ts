@@ -39,6 +39,14 @@ export class UserController {
     return await this.userService.findPaginated(query);
   }
 
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @Authentication()
+  @ApiOkResponse({ type: ReturnUserDto })
+  async getById(@Param('id') id: string) {
+    return await this.userService.findById(id);
+  }
+
   @Post('')
   @HttpCode(HttpStatus.OK)
   @UseGuards(SessionGuard)

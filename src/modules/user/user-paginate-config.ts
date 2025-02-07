@@ -10,4 +10,5 @@ export const userPaginateConfig: PaginateConfig<User> = {
     index: [FilterOperator.EQ],
     status: [FilterOperator.EQ],
   },
+  relations: ['profiles', 'profiles.roles'],
 };

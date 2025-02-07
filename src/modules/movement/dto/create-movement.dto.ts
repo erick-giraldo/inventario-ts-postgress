@@ -7,7 +7,7 @@ import {
   IsEnum,
   IsDateString,
   Min,
-  Matches,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateMovementDto {
@@ -18,14 +18,8 @@ export class CreateMovementDto {
   @IsEnum(MovementType, { message: 'Type must be a valid MovementType value.' })
   type: MovementType;
 
-  @ApiProperty({
-    description: 'ID of the product (e.g., MongoDB ObjectId).',
-    example: '507f1f77bcf86cd799439011',
-  })
-  @IsString({ message: 'Product must be a valid string.' })
-  @Matches(/^[0-9a-fA-F]{24}$/, {
-    message: 'Product must be a valid ObjectId.',
-  })
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID(4)
   product: string;
 
   @ApiProperty({ description: 'Quantity of the product.' })

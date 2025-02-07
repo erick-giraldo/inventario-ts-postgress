@@ -3,30 +3,17 @@ import { Transform } from 'class-transformer';
 import {
   IsOptional,
   IsString,
-  IsUrl,
   IsNumber,
   Min,
   IsBoolean,
-  Matches,
   ValidateIf,
+  IsUUID,
 } from 'class-validator';
-import {
-  HasMimeType,
-  IsFile,
-  MaxFileSize,
-  MemoryStoredFile,
-} from 'nestjs-form-data';
+import { HasMimeType, IsFile, MaxFileSize } from 'nestjs-form-data';
 
 export class UpdateProductDto {
-  @ApiProperty({
-    description: 'ID of the category (e.g., MongoDB ObjectId).',
-    example: '507f1f77bcf86cd799439011',
-  })
-  @IsOptional()
-  @IsString({ message: 'Category must be a valid string.' })
-  @Matches(/^[0-9a-fA-F]{24}$/, {
-    message: 'Category must be a valid ObjectId.',
-  })
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID(4)
   category?: string;
 
   @ApiProperty()
@@ -34,13 +21,8 @@ export class UpdateProductDto {
   @IsString()
   code?: string;
 
-  @ApiProperty({
-    description: 'ID of the brand (e.g., MongoDB ObjectId).',
-    example: '507f1f77bcf86cd799439011',
-  })
-  @IsOptional()
-  @IsString({ message: 'Brand must be a valid string.' })
-  @Matches(/^[0-9a-fA-F]{24}$/, { message: 'Brand must be a valid ObjectId.' })
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID(4)
   brand?: string;
 
   @ApiProperty()
@@ -68,7 +50,8 @@ export class UpdateProductDto {
   price?: number;
 
   @ApiProperty({
-    description: 'Product image (optional). If not provided, it can be a URL (string).',
+    description:
+      'Product image (optional). If not provided, it can be a URL (string).',
     required: false,
   })
   @IsOptional()

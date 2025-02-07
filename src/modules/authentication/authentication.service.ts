@@ -26,6 +26,7 @@ import { EmailService } from '../email/email.service';
 import { ConfirmDto, SetActivateDto } from './dto/confirm.dto';
 import { ResendCodeDto } from './dto/resend-code.dto';
 import { SessionService } from '../session/session.service';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -312,4 +313,33 @@ export class AuthenticationService {
   async logOut(sessionId: string) {
     await this.sessionService.deleteSession(sessionId);
   }
+
+  
+  async updatePassword(
+    user: EntityWithId<User>,
+    updatePasswordDto: UpdatePasswordDto,
+    sessionId: string,
+  ) {
+    await this.verifyTwoFaCode(user, updatePasswordDto.twoFaCode);
+
+    if (
+      !(await bcrypt.compare(updatePasswordDto.currentPassword, user.password))
+    ) {
+      throw new UnauthorizedException('Unauthorized', {
+        cause: 'Invalid password',
+      });
+    }
+
+    await this.userService.updateById(
+      user.id,
+      {
+        password: await bcrypt.hash(
+          updatePasswordDto.newPassword,
+          await bcrypt.genSalt(),
+        ),
+      },
+      sessionId,
+    );
+  }
+
 }
